@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Lombada</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#151618">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Lombada">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* Direção: monocromático como Rastro e Trama. Preto, branco e cinza; sem cor de acento; JetBrains Mono. Diferenças entre livros e tipos de ligação vêm de tom de cinza e tracejado. */
+:root{
+  --bg:#151618; --surf:#1d1e21; --surf2:#26272a; --line:#2b2c30;
+  --pastel:#e4dccb; --ins:#292b30; --insb:#454951; --hi:#9fb2c8; --hitx:#c9d3df; --bg0:#0b0b0c; --navon:#2a2b2f; --wk:#ececec; --wktx:#151618; --pink:#16140f; --tx:#ececec; --mut:#85878d; --acc:#ececec; --ink:#111;
+  --serif:'JetBrains Mono',ui-monospace,Menlo,monospace;
+  --sans:'JetBrains Mono',ui-monospace,Menlo,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:var(--bg0);color:var(--tx);font-family:var(--sans);font-size:14px;line-height:1.4}
+button,input,select,textarea{font:inherit;color:inherit}
+button{background:none;border:0;cursor:pointer}
+:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+#app{position:relative;height:100%;max-width:430px;margin:0 auto;background:var(--bg);overflow:hidden;display:flex;flex-direction:column}
+@media(min-width:500px){#app{height:min(100%,880px);margin-top:max(0px,calc((100% - 880px)/2));border:1px solid var(--line);border-radius:30px}}
+main{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;padding:calc(12px + env(safe-area-inset-top)) 18px 110px;scrollbar-width:none}
+main::-webkit-scrollbar{display:none}
+.ser{font-family:var(--serif)}
+h1,h2{font-family:var(--serif);font-weight:700;text-wrap:balance}h2{font-weight:500}
+.mut{color:var(--mut)}.sm{font-size:13px}.xs{font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--mut)}
+.row{display:flex;align-items:center;gap:10px}.sp{justify-content:space-between}.grow{flex:1;min-width:0}
+.ic{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.ib{width:38px;height:38px;border-radius:10px;background:var(--surf2);display:grid;place-items:center;color:var(--tx)}
+.top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:14px;min-height:40px}
+.top h1{font-size:22px}
+.btn{height:46px;padding:0 20px;border-radius:12px;background:var(--acc);color:var(--ink);font-weight:700;display:inline-flex;align-items:center;justify-content:center;gap:8px}
+.btn.ghost{background:var(--surf2);color:var(--tx)}.btn.wide{width:100%}.btn.sm{height:36px;padding:0 14px;font-size:13px}
+.btn.danger{background:transparent;color:var(--tx);border:1px solid var(--line)}
+.chip{height:34px;padding:0 14px;border-radius:10px;background:var(--surf);border:1px solid var(--line);color:var(--mut);font-size:13.5px;white-space:nowrap;display:inline-flex;align-items:center;gap:6px}
+.chip.on{background:var(--acc);color:var(--ink);border-color:var(--acc)}
+.chip.hi{background:var(--ins);color:var(--hitx);border:1.5px solid var(--hi)}
+.chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;margin-bottom:14px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.card{background:var(--surf);border:1px solid var(--line);border-radius:12px;padding:16px}
+.seg{display:flex;background:var(--surf);border:1px solid var(--line);border-radius:10px;padding:3px;gap:2px}
+.seg button{flex:1;height:34px;border-radius:8px;color:var(--mut);font-size:13.5px}.seg button.on{background:var(--surf2);color:var(--tx)}
+input[type=text],input[type=number],textarea,select{width:100%;background:var(--surf);border:1px solid var(--line);border-radius:10px;padding:12px 14px;outline:none;font-size:16px}
+input:focus,textarea:focus,select:focus{border-color:var(--acc)}
+textarea{resize:none;min-height:110px;line-height:1.5}
+label.f{display:block;margin-bottom:12px}label.f>span{display:block;margin-bottom:6px}
+/* nav */
+nav{position:absolute;left:0;right:0;bottom:0;height:calc(72px + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);background:var(--bg);border-top:1px solid var(--line);display:flex;align-items:flex-start;justify-content:space-around;padding-top:8px}
+nav button{width:58px;height:48px;border-radius:10px;color:#6c6e74;display:grid;place-items:center}
+nav button.on{color:var(--tx);background:var(--navon)}
+nav .go{width:58px;height:58px;border-radius:16px;margin-top:-14px;background:var(--acc);color:var(--ink);border:4px solid var(--bg)}
+/* covers */
+.cover{position:relative;container-type:inline-size;aspect-ratio:2/3;border-radius:2px 4px 4px 2px;overflow:hidden;box-shadow:0 6px 14px rgba(0,0,0,.45),inset 3px 0 0 rgba(255,255,255,.08);}
+.cover .ci{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:space-between;padding:12cqw 9cqw 10cqw 15cqw}
+.cover img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.cover b{font-family:var(--serif);font-weight:600;font-size:10cqw;line-height:1.15;letter-spacing:-.02em;overflow-wrap:break-word;font-weight:700}
+.cover i{font-style:normal;font-size:8cqw;letter-spacing:.14em;text-transform:uppercase;opacity:.8}
+.cover u{position:absolute;left:0;right:0;height:9%;top:46%;text-decoration:none}
+.shelfrow{display:flex;gap:14px;align-items:flex-end;padding:0 4px;flex-wrap:wrap;min-height:60px}
+.board{height:8px;background:linear-gradient(#3b3c40,#26272a);border-radius:2px;box-shadow:0 5px 8px rgba(0,0,0,.45);margin:0 -4px 26px}
+.spine{display:flex;align-items:center;justify-content:center;writing-mode:vertical-rl;font-family:var(--serif);font-weight:700;font-size:11px;padding:10px 0;border-radius:2px 2px 0 0;box-shadow:inset 2px 0 0 rgba(255,255,255,.1),inset -2px 0 0 rgba(0,0,0,.25);overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.bk{display:block;text-align:left}
+.bk .cover{width:92px}
+/* home */
+.week{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center;margin-bottom:6px}
+.week span.d{display:block;font-size:11.5px;color:var(--mut);margin-bottom:6px}
+.week .n{width:100%;max-width:42px;aspect-ratio:1;border-radius:10px;margin:0 auto;display:grid;place-items:center;font-size:13.5px;background:var(--surf);border:1px solid var(--line);color:var(--mut)}
+.week .n.act{background:var(--wk);color:var(--wktx);border-color:var(--wk);font-weight:600}
+.week .n.today{outline:2px solid var(--acc);outline-offset:2px}
+.big{font-family:var(--serif);font-weight:700;font-size:38px;line-height:1;font-variant-numeric:tabular-nums}
+.flame{color:var(--acc)}
+.hs{display:flex;gap:16px;overflow-x:auto;padding:4px 2px 14px;scrollbar-width:none}.hs::-webkit-scrollbar{display:none}
+.hs .bk{flex:none;width:96px}
+.pbar{height:5px;background:var(--surf2);border-radius:3px;overflow:hidden}.pbar>i{display:block;height:100%;background:var(--acc);border-radius:3px}
+/* notes */
+.cols{column-count:2;column-gap:10px}
+.nc{break-inside:avoid;margin-bottom:10px;border-radius:12px;padding:13px 13px 11px;text-align:left;display:block;width:100%;border:1px solid var(--insb);position:relative;background:var(--ins)}
+.pn{margin-bottom:24px}
+.rd{background:var(--ins);border:1px solid var(--insb);border-radius:14px;padding:16px;margin-bottom:24px}
+.rd .meta{font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--mut)}
+.rd .tt{font-family:var(--serif);font-size:21px;font-weight:700;line-height:1.25;margin:10px 0 12px;text-wrap:balance}
+.rd .bd{font-size:15px;line-height:1.6;color:#d8d9dc;white-space:pre-wrap}
+.rd .tg{margin-top:14px;font-size:12.5px;color:var(--mut)}
+.rel.ins{background:var(--ins);border-color:var(--insb)}
+.pt{font-weight:500}
+.rtg{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.rtg button{display:flex;flex-direction:column;align-items:flex-start;gap:6px;text-align:left;padding:11px 12px;border-radius:12px;background:var(--surf);border:1px solid var(--line);color:var(--mut)}
+.rtg button b{font-weight:700;font-size:13.5px;color:var(--tx)}
+.rtg button small{font-size:11.5px;line-height:1.3}
+.rtg button.on{background:var(--ins);border:1.5px solid var(--hi);color:var(--hitx)}
+.gbox svg{display:block;width:100%;height:auto;touch-action:none;user-select:none;-webkit-user-select:none;cursor:grab}
+.gbox svg:active{cursor:grabbing}
+.nc h3{font-family:var(--serif);font-weight:700;font-size:14px;line-height:1.2;margin:4px 0 6px;padding-right:18px}
+.nc p{font-size:13px;color:var(--tx);opacity:.82;display:-webkit-box;-webkit-line-clamp:5;-webkit-box-orient:vertical;overflow:hidden}
+.nc .ft{display:flex;justify-content:space-between;gap:6px;margin-top:9px;font-size:11.5px;color:var(--mut)}
+.nc .st{position:absolute;right:10px;top:10px;color:var(--acc)}
+.tag{font-size:12px;color:var(--mut);background:var(--surf2);border-radius:10px;padding:2px 8px;white-space:nowrap}
+.rel{display:flex;gap:10px;align-items:center;padding:11px 12px;background:var(--surf);border:1px solid var(--line);border-radius:14px;margin-bottom:8px;width:100%;text-align:left}
+.dot{width:8px;height:8px;border-radius:50%;flex:none}
+/* sheets */
+.ov{position:absolute;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:flex-end;z-index:20}
+.sheet{width:100%;max-height:88%;overflow-y:auto;background:var(--surf);border-radius:18px 18px 0 0;padding:18px 18px calc(22px + env(safe-area-inset-bottom));border-top:1px solid var(--line)}
+.sheet.mid{border-radius:24px;margin:0 16px auto;margin-bottom:auto;margin-top:auto}
+.ov.c{align-items:center}
+.ov.c .sheet{border-radius:16px;margin:0 16px;border:1px solid var(--line)}
+.dotst{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--mut);margin-right:8px;vertical-align:1px}.dotst.ok{background:#4cc38a}.dotst.er{background:#ff6b61}.dotst.go{background:#9fb2c8}
+.toast{position:absolute;left:50%;transform:translateX(-50%);bottom:100px;background:var(--tx);color:var(--ink);padding:10px 16px;border-radius:10px;font-size:13.5px;z-index:30;white-space:nowrap}
+/* session */
+.dark{background:var(--bg0);position:absolute;inset:0;z-index:10;display:flex;flex-direction:column;padding:calc(14px + env(safe-area-inset-top)) 18px calc(22px + env(safe-area-inset-bottom));overflow-y:auto}
+.clock{font-family:var(--serif);font-weight:700;font-size:64px;letter-spacing:.02em;font-variant-numeric:tabular-nums;text-align:center;line-height:1}
+.round{width:88px;height:88px;border-radius:22px;background:var(--acc);color:var(--ink);display:grid;place-items:center}
+.stepper{display:flex;gap:8px;justify-content:center;align-items:center}
+.stepper button{height:44px;min-width:44px;padding:0 12px;border-radius:10px;background:var(--surf2)}
+.stepper input{width:90px;text-align:center;height:44px;border-radius:10px;font-size:18px}
+input[type=range]{width:100%;accent-color:var(--acc)}
+.star{color:var(--line)}.star.on{color:var(--acc)}.star svg{fill:currentColor}
+svg text{font-family:var(--sans)}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--mut)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;text-align:center}
+.cal span{aspect-ratio:1;display:grid;place-items:center;border-radius:6px;font-size:13px;color:var(--mut)}
+.cal span.act{background:var(--tx);color:var(--bg);font-weight:600}
+.cal span.today{outline:2px solid var(--acc);outline-offset:1px}
+.cal span.h{aspect-ratio:auto;font-size:11px;color:var(--mut)}
+.ph{font-size:11px;color:var(--mut);text-align:center;padding:8px 18px 0}
+
+body{--surf:#292b30;--surf2:#353942;--line:#454951;--navon:#353a44}
+body .card,body .ib,body .chip:not(.on):not(.hi),body .week .n:not(.act){border-color:var(--insb)}
+body .cal span:not(.h):not(:empty){background:var(--surf);border:1px solid var(--line)}
+body .cal span.act:not(.h){background:#ececec;border-color:#ececec;color:#151618;font-weight:700}
+body .cal span.today{outline-color:#9fb2c8}
+@keyframes nIn{from{opacity:0;transform:translateX(14px)}}main.nin{animation:nIn .18s ease-out}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<input type="file" id="impf" accept="application/json,.json" hidden>
+<script>
+'use strict';
+/* ===== utilidades ===== */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const DAY=864e5,MIN=6e4;
+const dk=t=>{const d=new Date(t);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
+const sod=t=>{const d=new Date(t);d.setHours(0,0,0,0);return d.getTime()};
+const monday=t=>{const d=new Date(sod(t));d.setDate(d.getDate()-((d.getDay()+6)%7));return d.getTime()};
+const MESES=['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+const DSEM=['Seg','Ter','Qua','Qui','Sex','Sáb','Dom'];
+const fmtMin=m=>{m=Math.round(m);const h=Math.floor(m/60),r=m%60;return h?(r?h+'h'+String(r).padStart(2,'0')+'min':h+'h'):m+'min'};
+const mmss=ms=>{const s=Math.max(0,Math.floor(ms/1000));return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')};
+const dfmt=t=>{const d=new Date(t);return d.getDate()+' de '+MESES[d.getMonth()].slice(0,3)+'.'};
+const uid=()=>Math.random().toString(36).slice(2,9);
+
+const IC={
+ stats:'<path d="M4 20V10M10 20V4M16 20v-8M22 20H2"/>',bulb:'<path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"/>',
+ gear:'<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3h0a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9v0a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>',
+ home:'<path d="M4 11l8-7 8 7v9a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1z"/>',shelf:'<path d="M5 4v14M9 4v14M13 6l4 12M3 21h18"/>',
+ plus:'<path d="M12 5v14M5 12h14"/>',search:'<circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/>',star:'<path d="M12 3l2.7 5.6 6.1.8-4.5 4.3 1.1 6.1L12 16.9 6.6 19.8l1.1-6.1L3.2 9.4l6.1-.8z"/>',
+ link:'<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',
+ flame:'<path d="M12 3c1 3.5 5 5.5 5 10a5 5 0 0 1-10 0c0-2 1-3 2-4 0 2 1 3 2 3 0-3-1-5 1-9z"/>',play:'<path d="M7 4l13 8-13 8z"/>',pause:'<path d="M8 5v14M16 5v14"/>',
+ pen:'<path d="M4 20l4-1L19 8l-3-3L5 16z"/>',back:'<path d="M15 5l-7 7 7 7"/>',x:'<path d="M6 6l12 12M18 6L6 18"/>',graph:'<circle cx="6" cy="7" r="2.5"/><circle cx="18" cy="6" r="2.5"/><circle cx="12" cy="18" r="2.5"/><path d="M8 8l3 8M16 8l-3 8M8.5 7h7"/>',
+ trash:'<path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/>',check:'<path d="M5 12l5 5 9-10"/>',book:'<path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2zM4 19a2 2 0 0 1 2-2h13"/>',
+ chev:'<path d="M9 5l7 7-7 7"/>',img:'<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="1.7"/><path d="M21 16l-5-5-9 9"/>'
+};
+const ic=(n,cls='')=>`<svg class="ic ${cls}" viewBox="0 0 24 24" aria-hidden="true">${IC[n]}</svg>`;
+
+/* ===== dados ===== */
+/* livro: un = 'p' (páginas) ou 'l' (localização de e-book); pg = total, cur = posição atual na mesma unidade */
+const B=(id,t,a,pg,st,cur,tags,syn,un)=>({id,t,a,pg,st,cur,tags,syn,un:un==='l'?'l':'p',rating:0,cover:null,cr:Date.now()});
+let D={goal:210,books:[],notes:[],links:[],sessions:[]};
+const U=b=>b&&b.un==='l'?{one:'localização',many:'localizações',cap:'Localização',sh:'loc.',tot:'Localização final',cur:'Localização atual',stop:'Localização em que parei',ph:'localizações por hora'}:{one:'página',many:'páginas',cap:'Página',sh:'p.',tot:'Total de páginas',cur:'Página atual',stop:'Página em que parei',ph:'páginas por hora'};
+const nU=(b,n)=>n+' '+(n===1?U(b).one:U(b).many);
+const bpct=b=>b&&b.pg>0?Math.round(Math.min(1,b.cur/b.pg)*100):0;
+
+/* ===== estado ===== */
+const S={tab:'home',view:'home',back:[],bid:null,nid:null,shelfMode:'capas',shelfTag:'',ins:{q:'',f:'todos'},stats:{p:'semana',m:0},modal:null,sess:null,end:null,toast:'',showAll:false,gSel:null,bt:'sobre'};
+const GHOSTB={id:'?',t:'Livro removido',a:'',pg:1,cur:0,un:'p',st:'lido',tags:[],syn:'',rating:0,cover:null};
+const book=id=>D.books.find(b=>b.id===id)||GHOSTB;
+const note=id=>D.notes.find(n=>n.id===id);
+const hsl=(h,s,l)=>`hsl(${h} ${s}% ${l}%)`;
+
+/* ===== capas e lombadas procedurais (sem arte de terceiros) ===== */
+const bn=b=>parseInt(b.id.replace(/\D/g,''),10)||0;
+const TH={h:215,s:7};const gy=l=>`hsl(${TH.h} ${TH.s}% ${l}%)`;
+const bl=b=>14+(bn(b)%6)*5;            /* tom de fundo do livro: 14% a 39% */
+function coverHTML(b,extra=''){
+ const v=bn(b)%3,L=bl(b);
+ const bg=v===1?`linear-gradient(160deg,${gy(L+7)} 55%,${gy(L-3)} 55%)`:gy(v===2?L-4:L);
+ return `<div class="cover" style="background:${bg};color:#ececec;${extra}"><div class="ci"><i>${esc(b.a)}</i><b>${esc(b.t)}</b></div><u style="background:${gy(v===2?70:82)};opacity:.9"></u>${b.cover?`<img src="${esc(b.cover)}" alt="Capa de ${esc(b.t)}" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">`:''}</div>`;
+}
+function spineHTML(b){
+ const w=15+Math.round(Math.min(b.un==='l'?b.pg/15:b.pg,900)/20),hgt=118+(bn(b)*37)%34,L=bl(b);
+ return `<button class="bk spine" data-a="openBook" data-id="${b.id}" style="width:${w}px;height:${hgt}px;background:${gy(L+4)};color:#ececec" aria-label="${esc(b.t)}">${esc(b.t)}</button>`;
+}
+
+/* ===== cálculos ===== */
+const sessOf=(from,to)=>D.sessions.filter(s=>s.ts>=from&&s.ts<to);
+function streak(){
+ const days=new Set(D.sessions.map(s=>dk(s.ts)));let t=sod(Date.now()),n=0;
+ if(!days.has(dk(t)))t-=DAY;
+ while(days.has(dk(t))){n++;t-=DAY}return n;
+}
+function pace(bid){
+ const ss=D.sessions.filter(s=>s.bid===bid);const m=ss.reduce((a,s)=>a+s.min,0),p=ss.reduce((a,s)=>a+s.pages,0);
+ return m>=30?p/(m/60):0;
+}
+function forecast(b){
+ const pph=pace(b.id);if(!pph||b.cur>=b.pg)return null;
+ const recent=D.sessions.filter(s=>s.ts>Date.now()-14*DAY).reduce((a,s)=>a+s.min,0)/14; // min/dia, todos os livros
+ const nLendo=Math.max(1,D.books.filter(x=>x.st==='lendo').length);
+ const perDay=pph*(recent/60)/nLendo;if(perDay<=0)return null;
+ return {pph,days:Math.ceil((b.pg-b.cur)/perDay)};
+}
+const STOP=new Set('para como mais pela pelo isso esta este essa esse suas seus nada pode sobre quem mesmo muito entre cada outro outra quando sempre ainda porque depois antes onde tambem apenas ser tem tudo todo toda uma uns umas dos das nos nas com que por mas nao sim seu sua'.split(' '));
+const norm=s=>s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+const toks=n=>new Set(norm(n.t+' '+n.x).split(/[^a-z0-9]+/).filter(w=>w.length>3&&!STOP.has(w)).map(w=>w.replace(/(s|es)$/,'')));
+function simScore(a,b){
+ const ta=toks(a),tb=toks(b);const w=[...ta].filter(x=>tb.has(x));
+ const tg=a.tags.filter(x=>b.tags.includes(x));
+ return {s:w.length+tg.length*2+(a.bid!==b.bid?1:0),w,tg};
+}
+const linked=(a,b)=>D.links.some(l=>(l.a===a&&l.b===b)||(l.a===b&&l.b===a));
+const linksOf=id=>D.links.filter(l=>l.a===id||l.b===id).map(l=>({id:l.a===id?l.b:l.a,rel:l.rel}));
+function suggestions(id){
+ const n=note(id);return D.notes.filter(m=>m.id!==id&&!linked(id,m.id)).map(m=>({m,...simScore(n,m)})).filter(r=>r.s>=2).sort((a,b)=>b.s-a.s).slice(0,6);
+}
+const RELC={reforça:{c:'#ececec',w:2.4,d:''},relaciona:{c:'#85878d',w:1.4,d:''},contradiz:{c:'#ececec',w:1.6,d:'5 4'},exemplifica:{c:'#a4a6ac',w:1.8,d:'1.5 3.5'}};
+const sw=r=>`<svg width="26" height="8" viewBox="0 0 26 8" aria-hidden="true" style="flex:none"><line x1="1" y1="4" x2="25" y2="4" stroke="${RELC[r].c}" stroke-width="${RELC[r].w}" stroke-dasharray="${RELC[r].d}" stroke-linecap="round"/></svg>`;
+const RELD={reforça:'apoia a mesma ideia',relaciona:'fala do mesmo assunto',contradiz:'diz o oposto',exemplifica:'é um caso prático da outra'};
+const nodeFill=b=>gy(45+(bn(b)%6)*9);
+
+/* ===== navegação ===== */
+function go(v,o={}){
+ if(['book','note','graph'].includes(v)||(v==='sessCfg')||v==='sessRun'||v==='sessEnd')S.back.push({view:S.view,bid:S.bid,nid:S.nid});
+ else S.back=[];
+ if(['home','shelf','insights','stats'].includes(v))S.tab=v;
+ Object.assign(S,o);S.view=v;S.modal=null;render();
+ $('main')&&($('main').scrollTop=0);
+}
+function goBack(){const p=S.back.pop();if(!p){go('home');return}S.view=p.view;S.bid=p.bid;S.nid=p.nid;S.modal=null;if(['home','shelf','insights','stats'].includes(S.view))S.tab=S.view;render()}
+function toast(t){S.toast=t;render();setTimeout(()=>{S.toast='';render()},1900)}
+
+/* ===== telas ===== */
+function vHome(){
+ const now=Date.now(),mon=monday(now);
+ const wk=sessOf(mon,mon+7*DAY),wm=wk.reduce((a,s)=>a+s.min,0);
+ const pct=Math.min(1,wm/D.goal),R=118,C=Math.PI*R;
+ const days=new Set(D.sessions.map(s=>dk(s.ts)));
+ const strip=DSEM.map((d,i)=>{const t=mon+i*DAY;const k=dk(t);return `<div><span class="d">${d}</span><div class="n ${days.has(k)?'act':''} ${k===dk(now)?'today':''}">${new Date(t).getDate()}</div></div>`}).join('');
+ const lendo=D.books.filter(b=>b.st==='lendo');
+ const rv=D.notes.length?D.notes[(new Date().getDate()*7)%D.notes.length]:null;
+ return `<div class="top"><div class="row"><button class="ib" data-a="go" data-v="stats" aria-label="Estatísticas">${ic('stats')}</button><button class="ib" data-a="go" data-v="insights" aria-label="Insights">${ic('bulb')}</button></div>
+ <h1 style="font-size:24px">Lombada</h1><button class="ib" data-a="modal" data-m="goal" aria-label="Ajustes">${ic('gear')}</button></div>
+ <div class="week">${strip}</div>
+ <div style="position:relative;margin:14px 0 4px;text-align:center">
+  <svg viewBox="0 0 290 160" width="100%" role="img" aria-label="Leitura da semana: ${fmtMin(wm)} de ${D.goal} minutos"><path d="M26 148A118 118 0 0 1 264 148" fill="none" stroke="var(--surf2)" stroke-width="16" stroke-linecap="round"/>${pct>0?`<path d="M26 148A118 118 0 0 1 264 148" fill="none" stroke="var(--acc)" stroke-width="16" stroke-linecap="round" stroke-dasharray="${C*pct} ${C}"/>`:''}</svg>
+  <div style="position:absolute;left:0;right:0;bottom:6px"><div class="xs">Leitura da semana</div><div class="big" style="margin:6px 0 4px">${fmtMin(wm)}</div><div class="sm mut">da sua meta de ${fmtMin(D.goal)}</div></div></div>
+ <div class="row sp" style="margin:22px 0 8px"><h2 style="font-size:20px">Continue lendo</h2><span class="row flame" style="gap:4px;font-weight:600">${ic('flame')}${streak()}<span class="sm mut" style="font-weight:400">dias</span></span></div>
+ ${!D.books.length?`<div class="card" style="text-align:center;padding:22px 16px;margin-bottom:16px"><p class="sm mut" style="margin-bottom:14px;line-height:1.5">Sua estante está vazia. Adicione o primeiro livro pela busca ou com a foto da capa.</p><button class="btn" data-a="modal" data-m="add">${ic('plus')}Adicionar livro</button></div>`:!lendo.length?`<p class="sm mut" style="margin-bottom:16px">Nenhum livro em leitura. Na estante, abra um livro e mude para "Lendo".</p>`:''}
+ <div class="hs">${lendo.map(b=>`<button class="bk" data-a="openBook" data-id="${b.id}">${coverHTML(b)}<div class="pbar" style="margin-top:9px"><i style="width:${bpct(b)}%"></i></div><div class="xs" style="margin-top:5px">${bpct(b)}%</div></button>`).join('')}</div>
+ ${rv?`<div class="xs" style="margin:6px 0 8px">Para revisitar hoje</div>${noteCard(rv,true)}`:''}`;
+}
+function noteCard(n,wide){
+ const b=book(n.bid),L=linksOf(n.id).length;
+ return `<button class="nc" data-a="openNote" data-id="${n.id}">
+  ${n.fav?`<span class="st">${ic('star').replace('class="ic ','class="ic ').replace('<svg','<svg style="fill:currentColor"')}</span>`:''}
+  <div class="xs">${{insight:'Insight',citação:'Citação',ideia:'Ideia',pergunta:'Pergunta'}[n.type]}</div>
+  <h3>${esc(n.t||'Sem título')}</h3><p>${esc(n.x)}</p>
+  <div class="ft"><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(b.t)}</span>${L?`<span class="row" style="gap:3px;flex:none">${ic('link').replace('class="ic ','class="ic " style="width:13px;height:13px" data-x="').replace('data-x="','')}${L}</span>`:`<span>${U(b).sh} ${n.pg||'-'}</span>`}</div></button>`;
+}
+function vShelf(){
+ const tags=[...new Set(D.books.flatMap(b=>b.tags))].sort();
+ const groups=[['lendo','Lendo'],['quero','Quero ler'],['lido','Lidos']];
+ const list=D.books.filter(b=>!S.shelfTag||b.tags.includes(S.shelfTag));
+ return `<div class="top"><h1>Sua biblioteca</h1><div class="row"><button class="ib" data-a="modal" data-m="add" aria-label="Adicionar livro">${ic('plus')}</button></div></div>
+ <div class="seg" style="margin-bottom:12px"><button class="${S.shelfMode==='capas'?'on':''}" data-a="shelfMode" data-v="capas">Capas</button><button class="${S.shelfMode==='lombadas'?'on':''}" data-a="shelfMode" data-v="lombadas">Lombadas</button></div>
+ <div class="chips"><button class="chip ${!S.shelfTag?'on':''}" data-a="shelfTag" data-v="">Todos ${D.books.length}</button>${tags.map(t=>`<button class="chip ${S.shelfTag===t?'on':''}" data-a="shelfTag" data-v="${esc(t)}">${esc(t)}</button>`).join('')}</div>
+ ${groups.map(([k,l])=>{const bs=list.filter(b=>b.st===k);return `<div class="row sp" style="margin-bottom:10px"><h2 style="font-size:18px">${l}</h2><span class="sm mut">${bs.length}</span></div>
+  <div class="shelfrow">${bs.length?bs.map(b=>S.shelfMode==='capas'?`<button class="bk" data-a="openBook" data-id="${b.id}">${coverHTML(b)}</button>`:spineHTML(b)).join(''):'<span class="sm mut" style="padding-bottom:10px">Nenhum livro aqui.</span>'}</div><div class="board"></div>`}).join('')}`;
+}
+function vBook(){
+ const b=book(S.bid);if(!b)return'';
+ const p=bpct(b),f=forecast(b),ns=D.notes.filter(n=>n.bid===b.id),ss=D.sessions.filter(s=>s.bid===b.id).sort((a,c)=>c.ts-a.ts);
+ const tabs=['sobre','insights','sessões'];
+ let body='';
+ if(S.bt==='sobre')body=`<div class="card" style="margin-bottom:12px"><div class="xs" style="margin-bottom:8px">Sinopse</div><p class="sm" style="line-height:1.55">${esc(b.syn||'Sem sinopse.')}</p></div>
+  <div class="card" style="margin-bottom:12px"><div class="row sp"><span class="xs">Progresso</span><button class="row sm" style="gap:6px;color:var(--acc)" data-a="modal" data-m="pages">${p}% ${ic('pen').replace('class="ic ','class="ic " style="width:15px;height:15px" data-z="')}</button></div><div class="pbar" style="margin:12px 0 8px"><i style="width:${p}%"></i></div><div class="sm mut">${b.cur} de ${nU(b,b.pg)}</div>
+  ${f?`<div class="sm" style="margin-top:12px;padding-top:12px;border-top:1px solid var(--line)">Ritmo de <b>${f.pph.toFixed(0)} ${U(b).ph}</b>. Neste ritmo, termina em cerca de <b>${f.days} dias</b>.</div>`:''}</div>
+  <div class="row" style="gap:12px"><div class="card grow"><div class="xs">${b.un==='l'?'Localizações':'Páginas'}</div><div class="big" style="font-size:30px;margin-top:6px">${b.pg}</div></div>
+  <div class="card grow"><div class="xs">Sua nota</div><div class="row" style="margin-top:8px">${[1,2,3,4,5].map(i=>`<button class="star ${b.rating>=i?'on':''}" data-a="rate" data-v="${i}" aria-label="${i} estrelas">${ic('star')}</button>`).join('')}</div></div></div>`;
+ else if(S.bt==='insights')body=ns.length?`<div class="cols">${ns.map(n=>noteCard(n)).join('')}</div>`:`<p class="mut sm" style="padding:20px 0">Nenhum insight deste livro ainda.</p>`;
+ else body=ss.length?ss.slice(0,12).map(s=>`<div class="card row sp" style="margin-bottom:8px"><div><div style="font-weight:500">${esc(s.name)}</div><div class="sm mut">${dfmt(s.ts)}</div></div><div style="text-align:right"><div class="ser" style="font-size:18px">${fmtMin(s.min)}</div><div class="sm mut">${nU(b,s.pages)}</div></div></div>`).join(''):`<p class="mut sm" style="padding:20px 0">Nenhuma sessão registrada.</p>`;
+ return `<div class="top"><button class="ib" data-a="back" aria-label="Voltar">${ic('back')}</button><select id="stsel" data-i="status" style="width:auto;height:36px;padding:0 12px;border-radius:18px;font-size:13px"><option value="quero" ${b.st==='quero'?'selected':''}>Quero ler</option><option value="lendo" ${b.st==='lendo'?'selected':''}>Lendo</option><option value="lido" ${b.st==='lido'?'selected':''}>Lido</option></select><div class="row" style="gap:6px"><button class="ib" data-a="editBook" aria-label="Editar livro">${ic('pen')}</button><button class="ib" data-a="delBook" aria-label="Remover livro">${ic('trash')}</button></div></div>
+ <div style="display:flex;justify-content:center;margin:4px 0 16px"><div style="width:150px">${coverHTML(b)}</div></div>
+ <h1 style="text-align:center;font-size:24px">${esc(b.t)}</h1><div class="sm mut" style="text-align:center;margin:4px 0 16px">${esc(b.a)} · ${nU(b,b.pg)}${b.un==='l'?' · e-book':''}</div>
+ <div class="row" style="gap:10px;margin-bottom:18px"><button class="btn grow" data-a="sessCfg" data-id="${b.id}">${ic('play')}Iniciar sessão</button><button class="btn ghost" data-a="newNote" data-id="${b.id}">${ic('plus')}Insight</button></div>
+ <div class="seg" style="margin-bottom:14px">${tabs.map(t=>`<button class="${S.bt===t?'on':''}" data-a="bt" data-v="${t}">${t[0].toUpperCase()+t.slice(1)}${t==='insights'?' '+ns.length:''}</button>`).join('')}</div>${body}`;
+}
+function filteredNotes(){
+ const q=norm(S.ins.q.trim()),f=S.ins.f;
+ return D.notes.filter(n=>(f==='todos'||(f==='fav'?n.fav:f.startsWith('b:')?n.bid===f.slice(2):n.tags.includes(f.slice(2))))&&(!q||norm(n.t+' '+n.x+' '+n.tags.join(' ')+' '+book(n.bid).t).includes(q))).sort((a,b)=>b.ts-a.ts);
+}
+function insList(){const ns=filteredNotes();return ns.length?`<div class="cols">${ns.map(n=>noteCard(n)).join('')}</div>`:`<p class="mut sm" style="padding:24px 0;text-align:center">Nenhum insight encontrado.</p>`}
+function vInsights(){
+ const fav=D.notes.filter(n=>n.fav).length,tagC={};D.notes.forEach(n=>n.tags.forEach(t=>tagC[t]=(tagC[t]||0)+1));
+ const tags=Object.entries(tagC).sort((a,b)=>b[1]-a[1]).slice(0,8);
+ const bs=D.books.filter(b=>D.notes.some(n=>n.bid===b.id));
+ const ch=(k,l,c)=>`<button class="chip ${S.ins.f===k?'on':''}" data-a="insF" data-v="${esc(k)}">${esc(l)}${c!=null?' <span style="opacity:.6">'+c+'</span>':''}</button>`;
+ return `<div class="top"><h1>Insights</h1><button class="ib" data-a="go" data-v="graph" aria-label="Mapa de ideias">${ic('graph')}</button></div>
+ <div style="position:relative;margin-bottom:12px"><input type="text" id="insq" data-i="insq" placeholder="Buscar insights" value="${esc(S.ins.q)}" style="padding-left:42px"><span style="position:absolute;left:13px;top:12px;color:var(--mut)">${ic('search')}</span></div>
+ <div class="chips">${ch('todos','Todos',D.notes.length)}${ch('fav','Favoritos',fav)}${bs.map(b=>ch('b:'+b.id,b.t.split(' ').slice(0,2).join(' '))).join('')}${tags.map(([t,c])=>ch('t:'+t,'#'+t,c)).join('')}</div>
+ <div id="inslist">${insList()}</div>
+ <button class="btn" data-a="newNote" data-id="" style="position:absolute;right:18px;bottom:96px;box-shadow:0 8px 20px rgba(0,0,0,.5)">${ic('plus')}Novo insight</button>`;
+}
+function vNote(){
+ const n=note(S.nid);if(!n)return'';const b=book(n.bid),L=linksOf(n.id),sg=suggestions(n.id).slice(0,3);
+ return `<div class="top"><button class="ib" data-a="back" aria-label="Voltar">${ic('back')}</button><span class="sm mut grow" style="text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(b.t)}</span><button class="ib" data-a="fav" aria-label="Favoritar" style="color:${n.fav?'var(--acc)':'var(--mut)'}">${ic('star').replace('<svg','<svg style="fill:'+(n.fav?'currentColor':'none')+'"')}</button></div>
+ ${S.nEdit?`<div class="row sp" style="margin-bottom:10px"><span class="xs">Editando</span><button class="btn sm" data-a="nEdit" data-v="0">Concluir</button></div> <div class="pn"><div class="row" style="gap:8px;margin-bottom:12px"><select data-i="ntype" style="width:auto;height:36px;padding:0 12px;border-radius:18px;font-size:13px">${['insight','citação','ideia','pergunta'].map(t=>`<option value="${t}" ${n.type===t?'selected':''}>${t[0].toUpperCase()+t.slice(1)}</option>`).join('')}</select>
+  <label class="row sm mut" style="gap:6px;margin-left:auto">${U(b).cap}<input type="number" data-i="npg" value="${n.pg||''}" style="width:72px;padding:6px 10px;border-radius:12px" inputmode="numeric"></label></div>
+ <input type="text" class="tt" data-i="nt" value="${esc(n.t)}" placeholder="Título" style="font-family:var(--serif);font-size:20px;margin-bottom:10px">
+ <textarea data-i="nx" placeholder="Escreva o que ficou deste trecho" style="min-height:140px;margin-bottom:10px">${esc(n.x)}</textarea>
+ <input type="text" data-i="ntags" value="${esc(n.tags.join(', '))}" placeholder="Tags separadas por vírgula"></div>`:`<div class="rd"><div class="row sp" style="align-items:flex-start"><div class="meta">${{insight:'Insight',citação:'Citação',ideia:'Ideia',pergunta:'Pergunta'}[n.type]} · ${esc(b.t)}${n.pg?' · '+U(b).sh+' '+n.pg:''}</div><button class="btn ghost sm" data-a="nEdit" data-v="1" style="flex:none;margin:-4px -4px 0 8px">Editar</button></div>
+ <div class="tt">${esc(n.t||'Sem título')}</div><div class="bd">${esc(n.x)||'<span class="mut">Sem texto. Toque em Editar.</span>'}</div>${n.tags.length?`<div class="tg">${n.tags.map(t=>'#'+esc(t)).join('  ')}</div>`:''}</div>`}
+ <div class="row sp" style="margin-bottom:10px"><h2 style="font-size:19px">Relacionadas ${L.length?'<span class="mut sm">'+L.length+'</span>':''}</h2><button class="btn ghost sm" data-a="modal" data-m="rel">${ic('link')}Relacionar</button></div>
+ ${L.length?L.map(l=>{const m=note(l.id),mb=book(m.bid);return `<div class="rel ins">${sw(l.rel)}<button class="grow" data-a="openNote" data-id="${m.id}" style="text-align:left"><div class="pt">${esc(m.t)}</div><div class="sm mut"><b style="color:var(--hitx);font-weight:500">${esc(l.rel)}</b> · ${esc(mb.t)}</div></button><button data-a="unlink" data-id="${m.id}" class="mut" aria-label="Remover ligação">${ic('x')}</button></div>`}).join(''):`<p class="sm mut" style="margin-bottom:10px">Nenhuma ligação ainda.</p>`}
+ ${sg.length?`<div class="xs" style="margin:16px 0 8px">Sugeridas pelo texto e pelas tags</div>${sg.map(r=>`<div class="rel ins"><span class="dot" style="background:${nodeFill(book(r.m.bid))}"></span><button class="grow" data-a="openNote" data-id="${r.m.id}" style="text-align:left"><div class="pt">${esc(r.m.t)}</div><div class="sm mut">${r.tg.length?'tags: '+r.tg.join(', '):''}${r.tg.length&&r.w.length?' · ':''}${r.w.length?'palavras: '+r.w.slice(0,3).join(', '):''}</div></button><button class="btn ghost sm" data-a="quickLink" data-id="${r.m.id}" style="flex:none">Ligar</button></div>`).join('')}`:''}
+ <button class="btn danger wide" data-a="delNote" style="margin-top:22px">${ic('trash')}Excluir insight</button>`;
+}
+function layout(ids,edges){
+ const W=360,H=400,P=ids.map((id,i)=>{const a=i/ids.length*Math.PI*2;return {id,x:W/2+Math.cos(a)*(70+(i%3)*30),y:H/2+Math.sin(a)*(70+(i%3)*30),vx:0,vy:0}});
+ const idx={};P.forEach((p,i)=>idx[p.id]=i);
+ for(let it=0;it<260;it++){
+  const k=1-it/300;
+  for(let i=0;i<P.length;i++)for(let j=i+1;j<P.length;j++){let dx=P[i].x-P[j].x,dy=P[i].y-P[j].y,d2=dx*dx+dy*dy+.1,d=Math.sqrt(d2),f=1500/d2;dx/=d;dy/=d;P[i].vx+=dx*f;P[i].vy+=dy*f;P[j].vx-=dx*f;P[j].vy-=dy*f}
+  edges.forEach(e=>{const a=P[idx[e.a]],b=P[idx[e.b]];if(!a||!b)return;let dx=b.x-a.x,dy=b.y-a.y,d=Math.sqrt(dx*dx+dy*dy)+.1,f=(d-55)*.06;dx/=d;dy/=d;a.vx+=dx*f;a.vy+=dy*f;b.vx-=dx*f;b.vy-=dy*f});
+  P.forEach(p=>{p.vx+=(W/2-p.x)*.012;p.vy+=(H/2-p.y)*.012;p.x+=Math.max(-8,Math.min(8,p.vx))*k;p.y+=Math.max(-8,Math.min(8,p.vy))*k;p.vx*=.6;p.vy*=.6;p.x=Math.max(22,Math.min(W-22,p.x));p.y=Math.max(22,Math.min(H-22,p.y))});
+ }
+ return P;
+}
+function vGraph(){
+ const ids=D.notes.filter(n=>S.showAll||linksOf(n.id).length).map(n=>n.id);
+ G.ids=ids;
+ const sel=S.gSel&&note(S.gSel);
+ const pairs=[];D.notes.forEach((a,i)=>D.notes.slice(i+1).forEach(b=>{if(!linked(a.id,b.id)){const r=simScore(a,b);if(r.s>=3)pairs.push({a,b,...r})}}));
+ pairs.sort((x,y)=>y.s-x.s);
+ return `<div class="top"><button class="ib" data-a="back" aria-label="Voltar">${ic('back')}</button><h1>Mapa de ideias</h1><span style="width:40px"></span></div>
+ <div class="card gbox" style="padding:6px"><svg id="gsvg" viewBox="0 0 360 400" role="img" aria-label="Rede de insights ligados"><g id="gv"></g></svg></div>
+ <div class="row" style="gap:8px;margin:10px 0 0"><button class="btn ghost sm" data-a="gCenter">Recentralizar</button><button class="btn ghost sm" data-a="gRelayout">Reorganizar</button></div>
+ <div class="legend" style="margin:10px 2px 14px">${Object.keys(RELC).map(k=>`<span>${sw(k)} ${k}</span>`).join('')}</div>
+ <label class="row sm mut" style="gap:8px;margin-bottom:14px"><input type="checkbox" data-i="showAll" ${S.showAll?'checked':''} style="accent-color:var(--acc);width:18px;height:18px">Mostrar insights sem ligação (${D.notes.filter(n=>!linksOf(n.id).length).length})</label>
+ ${sel?`<div class="rd" style="margin-bottom:16px"><div class="meta">${esc(book(sel.bid).t)}</div><div class="ser" style="font-size:19px;margin:6px 0 6px">${esc(sel.t)}</div><p class="sm mut" style="margin-bottom:12px">${esc(sel.x)}</p><button class="btn sm" data-a="openNote" data-id="${sel.id}">Abrir insight</button></div>`:`<p class="sm mut" style="margin-bottom:16px">Arraste um ponto para puxar os vizinhos, arraste o fundo para mover o mapa e use dois dedos para dar zoom. Toque num ponto para ver o insight. O cinza identifica o livro; o traço da linha, o tipo de ligação.</p>`}
+ <h2 style="font-size:19px;margin-bottom:4px">Ligações que valem uma olhada</h2><p class="sm mut" style="margin-bottom:10px">Pares ainda sem ligação que repetem palavras ou tags, de preferência de livros diferentes.</p>
+ ${pairs.slice(0,5).map(r=>`<div class="card" style="margin-bottom:8px"><div class="sm"><b>${esc(r.a.t)}</b> <span class="mut">(${esc(book(r.a.bid).t.split(' ')[0])})</span></div><div class="sm"><b>${esc(r.b.t)}</b> <span class="mut">(${esc(book(r.b.bid).t.split(' ')[0])})</span></div><div class="row sp" style="margin-top:8px"><span class="xs">${r.tg.length?'tags: '+r.tg.join(', '):'palavras: '+r.w.slice(0,3).join(', ')}</span><button class="btn sm ghost" data-a="pairLink" data-a2="${r.a.id}" data-id="${r.b.id}">Ligar</button></div></div>`).join('')||'<p class="sm mut">Sem sugestões no momento.</p>'}`;
+}
+
+/* ===== mapa de ideias interativo ===== */
+const G={pos:{},v:{x:0,y:0,k:1},ids:[],raf:0,alpha:0,ptr:new Map(),drag:null,pan:null,pinch:null};
+function gEnsure(){
+ const ids=G.ids,have=ids.filter(i=>G.pos[i]);
+ if(!have.length){layout(ids,D.links).forEach(p=>G.pos[p.id]={x:p.x,y:p.y,vx:0,vy:0})}
+ else ids.filter(i=>!G.pos[i]).forEach(i=>{G.pos[i]={x:180+(Math.random()-.5)*40,y:200+(Math.random()-.5)*40,vx:0,vy:0};G.alpha=Math.max(G.alpha,.6)});
+}
+function gMount(){
+ cancelAnimationFrame(G.raf);G.raf=0;G.ptr.clear();G.drag=G.pan=G.pinch=null;
+ const svg=$('#gsvg'),gv=$('#gv');if(!svg||!gv)return;
+ gEnsure();
+ const ids=G.ids,edges=D.links.filter(l=>G.pos[l.a]&&G.pos[l.b]);G.edges=edges;
+ gv.innerHTML=edges.map((l,i)=>`<line data-l="${i}" vector-effect="non-scaling-stroke" stroke="${RELC[l.rel].c}" stroke-dasharray="${RELC[l.rel].d}" stroke-linecap="round"/>`).join('')+
+  ids.map(id=>{const n=note(id),b=book(n.bid),deg=linksOf(id).length,r=6+Math.min(7,deg*1.6);G.pos[id].r=r;
+   return `<g data-n="${id}" style="cursor:pointer"><circle r="${r+10}" fill="transparent"/><circle class="dc" r="${r}" fill="${nodeFill(b)}" vector-effect="non-scaling-stroke"/><text text-anchor="middle" fill="#ececec" style="pointer-events:none;paint-order:stroke;stroke:#151618;stroke-width:3px">${esc(n.t.length>24?n.t.slice(0,23)+'…':n.t)}</text></g>`}).join('');
+ gDraw();
+ const pt=e=>{const r=svg.getBoundingClientRect(),k=360/r.width;return {x:(e.clientX-r.left)*k,y:(e.clientY-r.top)*k}};
+ const world=p=>({x:(p.x-G.v.x)/G.v.k,y:(p.y-G.v.y)/G.v.k});
+ const zoomAt=(p,k2)=>{k2=Math.max(.5,Math.min(4,k2));const w=world(p);G.v.k=k2;G.v.x=p.x-w.x*k2;G.v.y=p.y-w.y*k2};
+ svg.addEventListener('pointerdown',e=>{
+  svg.setPointerCapture(e.pointerId);const p=pt(e);G.ptr.set(e.pointerId,p);
+  if(G.ptr.size===2){const [a,b]=[...G.ptr.values()];G.pinch={d:Math.hypot(a.x-b.x,a.y-b.y)||1,k:G.v.k};G.drag=G.pan=null;return}
+  const nd=e.target.closest('[data-n]');
+  if(nd){G.drag={id:nd.dataset.n,sx:p.x,sy:p.y,moved:false};}
+  else G.pan={sx:p.x,sy:p.y,vx:G.v.x,vy:G.v.y,moved:false};
+ });
+ svg.addEventListener('pointermove',e=>{
+  if(!G.ptr.has(e.pointerId))return;const p=pt(e);G.ptr.set(e.pointerId,p);
+  if(G.pinch&&G.ptr.size>=2){const [a,b]=[...G.ptr.values()],d=Math.hypot(a.x-b.x,a.y-b.y)||1;zoomAt({x:(a.x+b.x)/2,y:(a.y+b.y)/2},G.pinch.k*d/G.pinch.d);gDraw();return}
+  if(G.drag){const d=G.drag;if(!d.moved&&Math.hypot(p.x-d.sx,p.y-d.sy)>4)d.moved=true;
+   if(d.moved){const w=world(p),n=G.pos[d.id];n.x=w.x;n.y=w.y;n.vx=n.vy=0;n.fix=true;G.alpha=Math.max(G.alpha,.7);gLoop();gDraw()}}
+  else if(G.pan){const d=G.pan;if(!d.moved&&Math.hypot(p.x-d.sx,p.y-d.sy)>4)d.moved=true;if(d.moved){G.v.x=d.vx+(p.x-d.sx);G.v.y=d.vy+(p.y-d.sy);gDraw()}}
+ });
+ const up=e=>{
+  G.ptr.delete(e.pointerId);
+  if(G.pinch){if(G.ptr.size<2)G.pinch=null;return}
+  const d=G.drag,pn=G.pan;G.drag=G.pan=null;
+  if(d){const n=G.pos[d.id];if(n)n.fix=false;if(!d.moved&&e.type==='pointerup'){S.gSel=S.gSel===d.id?null:d.id;render()}else gLoop()}
+  else if(pn&&!pn.moved&&e.type==='pointerup'&&S.gSel){S.gSel=null;render()}
+ };
+ svg.addEventListener('pointerup',up);svg.addEventListener('pointercancel',up);
+ svg.addEventListener('wheel',e=>{e.preventDefault();zoomAt(pt(e),G.v.k*(e.deltaY<0?1.15:1/1.15));gDraw()},{passive:false});
+ if(G.alpha>.03)gLoop();
+}
+function gDraw(){
+ const gv=$('#gv');if(!gv)return;const v=G.v,P=G.pos,sel=S.gSel;
+ gv.setAttribute('transform',`translate(${v.x} ${v.y}) scale(${v.k})`);
+ gv.querySelectorAll('line').forEach(el=>{const l=G.edges[+el.dataset.l],a=P[l.a],b=P[l.b],hot=sel&&(l.a===sel||l.b===sel);
+  el.setAttribute('x1',a.x);el.setAttribute('y1',a.y);el.setAttribute('x2',b.x);el.setAttribute('y2',b.y);
+  el.setAttribute('stroke-width',RELC[l.rel].w+(hot?1:0));el.setAttribute('opacity',sel&&!hot?.25:.85)});
+ gv.querySelectorAll('g[data-n]').forEach(el=>{const id=el.dataset.n,p=P[id],deg=linksOf(id).length,show=sel===id||(G.drag&&G.drag.id===id&&G.drag.moved)||deg>=3||v.k>1.5;
+  el.setAttribute('transform',`translate(${p.x} ${p.y})`);
+  const c=el.querySelector('.dc');c.setAttribute('stroke',sel===id?'#fff':'#151618');c.setAttribute('stroke-width',sel===id?2.5:1.5);
+  const t=el.querySelector('text');t.setAttribute('y',-(p.r+5)/1);t.setAttribute('font-size',10.5/v.k);t.setAttribute('y',-(p.r+5/v.k));t.style.display=show?'':'none';t.style.strokeWidth=(3/v.k)+'px';
+  el.style.opacity=sel&&sel!==id&&!linked(sel,id)?.45:1});
+}
+function gStep(){
+ const ids=G.ids,P=G.pos;
+ for(let i=0;i<ids.length;i++)for(let j=i+1;j<ids.length;j++){const a=P[ids[i]],b=P[ids[j]];let dx=a.x-b.x,dy=a.y-b.y,d2=dx*dx+dy*dy+.1,d=Math.sqrt(d2),f=1500/d2;dx/=d;dy/=d;a.vx+=dx*f;a.vy+=dy*f;b.vx-=dx*f;b.vy-=dy*f}
+ G.edges.forEach(l=>{const a=P[l.a],b=P[l.b];let dx=b.x-a.x,dy=b.y-a.y,d=Math.sqrt(dx*dx+dy*dy)+.1,f=(d-55)*.06;dx/=d;dy/=d;a.vx+=dx*f;a.vy+=dy*f;b.vx-=dx*f;b.vy-=dy*f});
+ ids.forEach(id=>{const p=P[id];if(p.fix){p.vx=p.vy=0;return}p.vx+=(180-p.x)*.006;p.vy+=(200-p.y)*.006;p.x+=Math.max(-8,Math.min(8,p.vx))*G.alpha;p.y+=Math.max(-8,Math.min(8,p.vy))*G.alpha;p.vx*=.6;p.vy*=.6});
+ G.alpha*=.985;
+}
+function gLoop(){
+ if(G.raf)return;
+ const f=()=>{G.raf=0;if(!$('#gsvg'))return;gStep();gDraw();if(G.alpha>.03||G.drag)G.raf=requestAnimationFrame(f)};
+ G.raf=requestAnimationFrame(f);
+}
+function vStats(){
+ const now=Date.now(),p=S.stats.p;let from,to,pts=[],labels=[];
+ if(p==='semana'){from=monday(now);to=from+7*DAY;for(let i=0;i<7;i++){pts.push(sessOf(from+i*DAY,from+(i+1)*DAY).reduce((a,s)=>a+s.min,0));labels.push(DSEM[i])}}
+ else if(p==='mes'){const d=new Date(now);from=new Date(d.getFullYear(),d.getMonth(),1).getTime();to=new Date(d.getFullYear(),d.getMonth()+1,1).getTime();const nd=Math.round((to-from)/DAY);for(let i=0;i<nd;i++){pts.push(sessOf(from+i*DAY,from+(i+1)*DAY).reduce((a,s)=>a+s.min,0));labels.push(String(i+1))}}
+ else{const y=new Date(now).getFullYear();from=new Date(y,0,1).getTime();to=new Date(y+1,0,1).getTime();for(let m=0;m<12;m++){pts.push(sessOf(new Date(y,m,1).getTime(),new Date(y,m+1,1).getTime()).reduce((a,s)=>a+s.min,0));labels.push(MESES[m].slice(0,3))}}
+ const ss=sessOf(from,to),tot=ss.reduce((a,s)=>a+s.min,0),pg=ss.filter(s=>book(s.bid).un!=='l').reduce((a,s)=>a+s.pages,0),lc=ss.filter(s=>book(s.bid).un==='l').reduce((a,s)=>a+s.pages,0),dias=new Set(ss.map(s=>dk(s.ts))).size;
+ // gráfico
+ const unitH=p==='ano',vals=unitH?pts.map(m=>m/60):pts,max0=Math.max(...vals,unitH?1:30),step=unitH?(max0>20?10:5):(max0>120?60:max0>60?30:15),max=Math.ceil(max0/step)*step;
+ const W=330,H=190,L=34,Bm=24,T=10,iw=W-L-8,ih=H-Bm-T,X=i=>L+iw*(pts.length===1?.5:i/(pts.length-1)),Y=v=>T+ih-ih*v/max;
+ const line=vals.map((v,i)=>(i?'L':'M')+X(i).toFixed(1)+' '+Y(v).toFixed(1)).join(' ');
+ const grid=[];for(let g=0;g<=max;g+=step)grid.push(g);
+ const every=p==='mes'?5:1;
+ const mdl=S.stats.m,cd=new Date(new Date(now).getFullYear(),new Date(now).getMonth()+mdl,1),cdays=new Date(cd.getFullYear(),cd.getMonth()+1,0).getDate(),off=(cd.getDay()+6)%7;
+ const act=new Set(D.sessions.map(s=>dk(s.ts)));
+ // períodos do dia
+ const per=[['Madrugada',0,5],['Manhã',5,12],['Tarde',12,18],['Noite',18,24]].map(([n,a,b])=>[n,ss.filter(s=>{const h=new Date(s.ts).getHours();return h>=a&&h<b}).reduce((x,s)=>x+s.min,0)]);
+ const pm=Math.max(1,...per.map(x=>x[1]));
+ return `<div class="top"><h1>Relatórios</h1><span style="width:40px"></span></div>
+ <div class="seg" style="margin-bottom:16px">${[['semana','Semana'],['mes','Mês'],['ano','Ano']].map(([k,l])=>`<button class="${p===k?'on':''}" data-a="sp" data-v="${k}">${l}</button>`).join('')}</div>
+ <div class="card row" style="justify-content:space-around;text-align:center;margin-bottom:16px"><div><div class="big" style="font-size:30px">${dias}</div><div class="xs" style="margin-top:6px">Dias ativos</div></div><div><div class="big" style="font-size:30px">${fmtMin(tot)}</div><div class="xs" style="margin-top:6px">Tempo</div></div><div><div class="big" style="font-size:30px">${pg}</div><div class="xs" style="margin-top:6px">Páginas</div></div></div>${lc?`<p class="sm mut" style="margin:-8px 0 16px;text-align:center">+ ${lc} localizações em e-books</p>`:''}
+ <div class="card" style="padding:12px 8px 6px;margin-bottom:16px"><div class="xs" style="padding:0 8px 6px">${unitH?'Horas por mês':'Minutos por '+(p==='semana'?'dia':'dia')}</div>
+ <svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Tempo de leitura por período">
+ ${grid.map(g=>`<line x1="${L}" x2="${W-8}" y1="${Y(g)}" y2="${Y(g)}" stroke="var(--line)" stroke-width="1" opacity=".7"/><text x="${L-6}" y="${Y(g)+4}" text-anchor="end" font-size="10.5" fill="var(--mut)">${g}${unitH?'h':''}</text>`).join('')}
+ <path d="${line} L${X(vals.length-1)} ${Y(0)} L${X(0)} ${Y(0)}Z" fill="var(--acc)" opacity=".14"/><path d="${line}" fill="none" stroke="var(--acc)" stroke-width="2.2" stroke-linejoin="round"/>
+ ${vals.map((v,i)=>v>0&&(p!=='mes')?`<circle cx="${X(i)}" cy="${Y(v)}" r="3" fill="var(--acc)"/>`:'').join('')}
+ ${labels.map((l,i)=>i%every===0?`<text x="${X(i)}" y="${H-6}" text-anchor="middle" font-size="10.5" fill="var(--mut)">${l}</text>`:'').join('')}</svg></div>
+ <div class="card" style="margin-bottom:16px"><div class="xs" style="margin-bottom:10px">Quando você lê</div>${per.map(([n,m])=>`<div class="row" style="margin-bottom:8px"><span class="sm" style="width:78px">${n}</span><div class="pbar grow" style="height:8px"><i style="width:${m/pm*100}%"></i></div><span class="sm mut" style="width:62px;text-align:right">${fmtMin(m)}</span></div>`).join('')}</div>
+ <div class="row sp" style="margin:6px 0 12px"><h2 style="font-size:22px">${MESES[cd.getMonth()][0].toUpperCase()+MESES[cd.getMonth()].slice(1)} ${cd.getFullYear()}</h2><div class="row"><button class="ib" data-a="sm" data-v="-1" aria-label="Mês anterior">${ic('back')}</button><button class="ib" data-a="sm" data-v="1" aria-label="Próximo mês" ${mdl>=0?'disabled style="opacity:.3"':''}>${ic('chev')}</button></div></div>
+ <div class="cal">${['D','S','T','Q','Q','S','S'].map(x=>`<span class="h">${x}</span>`).join('')}${Array.from({length:(cd.getDay())},()=>'<span></span>').join('')}${Array.from({length:cdays},(_,i)=>{const k=dk(new Date(cd.getFullYear(),cd.getMonth(),i+1));return `<span class="${act.has(k)?'act':''} ${k===dk(now)?'today':''}">${i+1}</span>`}).join('')}</div>`;
+}
+function vSessCfg(){
+ const b=book(S.bid),c=S.cfg||(S.cfg={mode:'timer',min:30});
+ return `<div class="dark"><div class="row sp"><button class="ib" data-a="back" aria-label="Fechar">${ic('x')}</button><span></span></div>
+ <div style="width:120px;margin:10px auto 14px">${coverHTML(b)}</div><h1 style="text-align:center;font-size:22px">${esc(b.t)}</h1>
+ <div class="sm mut" style="text-align:center;margin:6px 0 4px">${U(b).cap} ${b.cur} de ${b.pg} <button data-a="modal" data-m="pages" style="color:var(--acc);text-decoration:underline">editar</button></div>
+ <div class="row" style="gap:10px;margin:26px 0 20px"><button class="btn grow ${c.mode==='timer'?'':'ghost'}" data-a="cfgMode" data-v="timer">Cronometrado</button><button class="btn grow ${c.mode==='free'?'':'ghost'}" data-a="cfgMode" data-v="free">Leitura livre</button></div>
+ ${c.mode==='timer'?`<div class="ser" style="font-size:38px;text-align:center;margin-bottom:14px" id="cfgmin">${c.min} min</div><input type="range" min="5" max="120" step="5" value="${c.min}" data-i="cfgrange" aria-label="Duração em minutos"><div class="row" style="gap:8px;margin-top:14px">${[15,30,45,60].map(m=>`<button class="chip grow ${c.min===m?'on':''}" style="justify-content:center" data-a="cfgMin" data-v="${m}">${m}</button>`).join('')}</div>`:`<p class="mut sm" style="text-align:center;padding:30px 20px">Sem meta de tempo. O cronômetro conta para cima até você encerrar.</p>`}
+ <div style="flex:1"></div><button class="btn wide" data-a="startSess">Iniciar leitura</button></div>`;
+}
+function elapsed(){const s=S.sess;return s.acc+(s.paused?0:Date.now()-s.start)}
+function clockText(){const s=S.sess,e=elapsed();return s.mode==='timer'?mmss(s.target*MIN-e):mmss(e)}
+function vSessRun(){
+ const s=S.sess,b=book(s.bid);
+ return `<div class="dark"><div class="row sp"><button class="ib" data-a="back" aria-label="Minimizar" style="background:var(--surf)">${ic('back')}</button><span class="xs">${s.mode==='timer'?'Sessão em andamento':'Leitura livre'}</span><span style="width:40px"></span></div>
+ <div style="width:130px;margin:18px auto 22px">${coverHTML(b)}</div><h2 style="text-align:center;font-size:20px;margin-bottom:26px">${esc(b.t)}</h2>
+ <div class="clock" id="clock">${clockText()}</div>
+ <div style="display:flex;justify-content:center;align-items:center;gap:22px;margin:34px 0 10px"><div class="round">${ic('book').replace('class="ic ','class="ic " style="width:34px;height:34px" data-z="')}</div><button class="ib" data-a="modal" data-m="quick" aria-label="Registrar insight" style="border:1px solid var(--line);background:none;width:48px;height:48px">${ic('pen')}</button></div>
+ <div class="sm mut" style="text-align:center;min-height:20px" id="qn">${s.notes.length?s.notes.length+' insight'+(s.notes.length>1?'s':'')+' nesta sessão':''}</div>
+ <div style="flex:1"></div>
+ <div class="row" style="gap:10px"><button class="btn ghost" data-a="pauseSess" style="width:96px" aria-label="${s.paused?'Retomar':'Pausar'}">${ic(s.paused?'play':'pause')}</button><button class="btn grow" data-a="modal" data-m="confirmEnd">Encerrar sessão</button></div>
+ </div>`;
+}
+function eplText(b,e){const n=Math.max(0,e.to-b.cur);return nU(b,n)+(b.un==='l'?' avançada'+(n===1?'':'s'):' lida'+(n===1?'':'s'))+' nesta sessão'}
+function vSessEnd(){
+ const e=S.end,b=book(e.bid);
+ return `<div class="dark" style="background:var(--bg)"><div class="row sp"><button class="ib" data-a="back" aria-label="Voltar">${ic('back')}</button><h1 style="font-size:22px">Sessão terminada</h1><span style="width:40px"></span></div>
+ <div class="row" style="gap:14px;margin:18px 0"><div style="width:64px;flex:none">${coverHTML(b)}</div><div><div class="ser" style="font-size:19px">${esc(b.t)}</div><div class="sm mut">${esc(b.a)}</div></div></div>
+ <div class="card row sp" style="margin-bottom:12px"><span class="sm mut">Tempo de leitura</span><span class="ser" style="font-size:26px">${mmss(e.ms)}</span></div>
+ <label class="f"><input type="text" data-i="ename" value="${esc(e.name)}" aria-label="Nome da sessão"></label>
+ <div class="seg" style="width:170px;margin:4px auto 12px"><button class="${e.unit==='pg'?'on':''}" data-a="eunit" data-v="pg">${b.un==='l'?'Local.':'Página'}</button><button class="${e.unit==='pc'?'on':''}" data-a="eunit" data-v="pc">%</button></div>
+ <div class="xs" style="text-align:center;margin-bottom:8px">${e.unit==='pg'?U(b).stop:'Percentual em que parei'}</div>
+ <div class="stepper">${[-10,-1].map(d=>`<button data-a="estep" data-v="${d}">${d}</button>`).join('')}<input type="number" inputmode="numeric" data-i="eval" value="${e.unit==='pg'?e.to:Math.round(e.to/b.pg*100)}" aria-label="Valor">${[1,10].map(d=>`<button data-a="estep" data-v="${d}">+${d}</button>`).join('')}</div>
+ <div class="sm mut" style="text-align:center;margin:8px 0 14px" id="epl">${eplText(b,e)}</div>
+ <textarea data-i="enote" placeholder="Como foi? Escreva o que ficou da leitura." style="min-height:90px">${esc(e.note)}</textarea>
+ ${S.sess&&S.sess.notes.length||e.nn?`<p class="sm mut" style="margin-top:10px">${e.nn} insight${e.nn===1?'':'s'} registrado${e.nn===1?'':'s'} durante a sessão.</p>`:''}
+ <div style="flex:1;min-height:16px"></div><button class="btn wide" data-a="saveSess" style="margin-top:16px">Salvar sessão</button></div>`;
+}
+/* ===== modais ===== */
+/* busca online: Google Books, e Open Library se falhar. Só leitura pública, sem chave. */
+const LK={q:'',st:'',res:[],t:0,seq:0};
+function lookup(q){q=q.trim();clearTimeout(LK.t);if(q.length<3){LK.q='';LK.res=[];LK.st='';paintLk();return}
+ LK.t=setTimeout(async()=>{const my=++LK.seq;LK.q=q;LK.st='busca';paintLk();let res=[];
+  try{const r=await fetch('https://www.googleapis.com/books/v1/volumes?maxResults=12&printType=books&q='+encodeURIComponent(q));if(r.ok){const j=await r.json();res=(j.items||[]).map(it=>{const v=it.volumeInfo||{},im=v.imageLinks||{};let c=im.thumbnail||im.smallThumbnail||'';c=c.replace(/^http:/,'https:').replace('&edge=curl','');return{t:(v.title||'')+(v.subtitle?': '+v.subtitle:''),a:(v.authors||[]).join(', '),pg:v.pageCount||'',syn:(v.description||'').replace(/<[^>]+>/g,'').slice(0,600),cover:c,cat:(v.categories||[]).slice(0,2).map(x=>x.toLowerCase())}}).filter(x=>x.t)}}catch(e){}
+  if(!res.length){try{const r=await fetch('https://openlibrary.org/search.json?limit=12&fields=title,author_name,number_of_pages_median,cover_i&q='+encodeURIComponent(q));if(r.ok){const j=await r.json();res=(j.docs||[]).map(d=>({t:d.title||'',a:(d.author_name||[]).slice(0,2).join(', '),pg:d.number_of_pages_median||'',syn:'',cover:d.cover_i?'https://covers.openlibrary.org/b/id/'+d.cover_i+'-M.jpg':'',cat:[]})).filter(x=>x.t)}}catch(e){}}
+  if(my!==LK.seq)return;LK.res=res;LK.st=res.length?'ok':(navigator.onLine?'vazio':'off');paintLk()},450)}
+function lkHTML(){if(LK.st==='busca')return '<p class="sm mut" style="padding:6px 0 10px">Buscando…</p>';if(LK.st==='vazio')return '<p class="sm mut" style="padding:6px 0 10px">Nada encontrado. Preencha abaixo.</p>';if(LK.st==='off')return '<p class="sm mut" style="padding:6px 0 10px">Sem conexão. Preencha abaixo.</p>';
+ return LK.res.map((c,i)=>`<button class="rel" data-a="pick" data-v="${i}" style="align-items:center"><div style="width:38px;flex:none;aspect-ratio:2/3;border-radius:3px;overflow:hidden;background:var(--surf2)">${c.cover?`<img src="${esc(c.cover)}" alt="" loading="lazy" referrerpolicy="no-referrer" style="width:100%;height:100%;object-fit:cover" onerror="this.remove()">`:''}</div><div class="grow"><div style="font-weight:500">${esc(c.t)}</div><div class="sm mut">${esc(c.a||'Autor desconhecido')}${c.pg?' · '+c.pg+' páginas':''}</div></div><span class="sm" style="color:var(--acc)">Usar</span></button>`).join('')}
+function paintLk(){const el=$('#lkres');if(el)el.innerHTML=lkHTML()}
+function mAdd(){
+ const f=S.addf||(S.addf={id:'',t:'',a:'',pg:'',un:'p',st:'quero',tags:'',cover:null,syn:'',kb:0,q:''}),ed=!!f.id;
+ return `<div class="row sp" style="margin-bottom:14px"><h2 style="font-size:21px">${ed?'Editar livro':'Adicionar livro'}</h2><button class="ib" data-a="close" aria-label="Fechar">${ic('x')}</button></div>
+ <div style="position:relative;margin-bottom:6px"><input type="text" data-i="addq" id="addq" placeholder="${ed?'Buscar outra capa ou dados':'Buscar por título, autor ou ISBN'}" value="${esc(f.q)}" style="padding-left:42px" autocomplete="off"><span style="position:absolute;left:13px;top:12px;color:var(--mut)">${ic('search')}</span></div>
+ <div id="lkres">${lkHTML()}</div>
+ <div class="xs" style="margin:16px 0 10px">${ed?'Dados do livro':'Ou preencha'}</div>
+ <div class="row" style="gap:12px;align-items:flex-start;margin-bottom:12px"><label style="width:86px;flex:none;cursor:pointer"><div class="cover" style="background:var(--surf2);color:var(--mut);display:grid;place-items:center;padding:0;border:1px dashed var(--line)">${f.cover?`<img src="${esc(f.cover)}" alt="Capa escolhida" referrerpolicy="no-referrer">`:ic('img')}</div><input type="file" accept="image/*" id="covin" data-i="cover" style="position:absolute;opacity:0;width:1px;height:1px"></label><div class="grow sm mut">${f.cover?(f.kb?'Foto reduzida para '+f.kb+' KB. ':'Capa da busca. ')+'Toque na capa para trocar por uma foto.':'Toque para tirar ou escolher a foto da capa, ou use a busca acima.'}${f.cover?`<br><button data-a="covClear" style="color:var(--acc);text-decoration:underline;margin-top:6px">Remover capa</button>`:''}</div></div>
+ <label class="f"><span class="sm mut">Título</span><input type="text" data-i="af_t" value="${esc(f.t)}"></label>
+ <label class="f"><span class="sm mut">Autor</span><input type="text" data-i="af_a" value="${esc(f.a)}"></label>
+ <div class="xs" style="margin:4px 0 8px">Como você acompanha o progresso</div>
+ <div class="seg" style="margin-bottom:12px"><button class="${f.un!=='l'?'on':''}" data-a="afun" data-v="p">Páginas</button><button class="${f.un==='l'?'on':''}" data-a="afun" data-v="l">Localização (e-book)</button></div>
+ <div class="row" style="gap:10px"><label class="f grow"><span class="sm mut">${f.un==='l'?'Localização final':'Páginas'}</span><input type="number" inputmode="numeric" data-i="af_pg" value="${f.pg}"></label>${ed?'':`<label class="f grow"><span class="sm mut">Estado</span><select data-i="af_st"><option value="quero" ${f.st==='quero'?'selected':''}>Quero ler</option><option value="lendo" ${f.st==='lendo'?'selected':''}>Lendo</option><option value="lido" ${f.st==='lido'?'selected':''}>Lido</option></select></label>`}</div>
+ ${f.un==='l'?'<p class="sm mut" style="margin:-4px 0 12px">No Kindle, a localização final aparece ao ir para o fim do livro ("Loc. 1234 de 5678"). Use o número maior.</p>':''}
+ <label class="f"><span class="sm mut">Tags</span><input type="text" data-i="af_tags" value="${esc(f.tags)}" placeholder="hábitos, filosofia"></label>
+ <label class="f"><span class="sm mut">Sinopse (opcional)</span><textarea data-i="af_syn" style="min-height:80px">${esc(f.syn)}</textarea></label>
+ <button class="btn wide" data-a="saveBook">${ed?'Salvar':'Adicionar à estante'}</button>`;
+}
+function mRel(){
+ const n=note(S.nid),q=norm(S.relq||''),sg=suggestions(n.id);
+ const others=D.notes.filter(m=>m.id!==n.id&&!linked(n.id,m.id)&&(!q||norm(m.t+m.x).includes(q)));
+ const sgIds=new Set(sg.map(r=>r.m.id));
+ const rows=(q?[]:sg.map(r=>({m:r.m,sug:true}))).concat(others.filter(m=>q||!sgIds.has(m.id)).slice(0,12).map(m=>({m})));
+ return `<div class="row sp" style="margin-bottom:12px"><h2 style="font-size:21px">Relacionar com</h2><button class="ib" data-a="close" aria-label="Fechar">${ic('x')}</button></div>
+ <div class="xs" style="margin-bottom:8px">Tipo de ligação</div><div class="chips" style="margin-bottom:6px">${Object.keys(RELC).map(r=>`<button class="chip ${(S.relt||'relaciona')===r?'hi':''}" data-a="relt" data-v="${r}" aria-pressed="${(S.relt||'relaciona')===r}">${sw(r)}${r}</button>`).join('')}</div><p class="sm" style="color:var(--hitx);margin-bottom:12px">${RELD[S.relt||'relaciona']}</p>
+ <input type="text" data-i="relq" id="relq" placeholder="Buscar insight" value="${esc(S.relq||'')}" style="margin-bottom:12px">
+ <div id="rellist">${rows.map(({m,sug})=>`<button class="rel ins" data-a="doLink" data-id="${m.id}"><span class="dot" style="background:${nodeFill(book(m.bid))}"></span><div class="grow"><div style="font-weight:500">${esc(m.t)}</div><div class="sm mut">${esc(book(m.bid).t)}${sug?' · sugerida':''}</div></div></button>`).join('')||'<p class="sm mut">Nada encontrado.</p>'}</div>`;
+}
+function mPages(){
+ const b=book(S.bid);
+ return `<div class="row sp" style="margin-bottom:16px"><h2 style="font-size:21px">Progresso</h2><button class="ib" data-a="close" aria-label="Fechar">${ic('x')}</button></div>
+ <div class="xs" style="text-align:center;margin-bottom:8px">${U(b).cur}</div><div class="stepper">${[-10,-1].map(d=>`<button data-a="pstep" data-v="${d}">${d}</button>`).join('')}<input type="number" inputmode="numeric" id="pcur" data-i="pcur" value="${b.cur}">${[1,10].map(d=>`<button data-a="pstep" data-v="${d}">+${d}</button>`).join('')}</div>
+ <label class="f" style="margin-top:18px"><span class="sm mut">${U(b).tot}</span><input type="number" inputmode="numeric" data-i="ptot" value="${b.pg}"></label>
+ <button class="btn wide" data-a="close">Concluir</button>`;
+}
+function mGoal(){
+ const c=CFG,st=SYN.state,msg=SYN.msg;
+ return `<div class="row sp" style="margin-bottom:16px"><h2 style="font-size:21px">Ajustes</h2><button class="ib" data-a="close" aria-label="Fechar">${ic('x')}</button></div>
+ <div class="xs" style="text-align:center;margin-bottom:8px">Meta semanal de leitura</div><div class="stepper"><button data-a="gstep" data-v="-30">-30</button><div class="ser" style="font-size:26px;min-width:110px;text-align:center">${fmtMin(D.goal)}</div><button data-a="gstep" data-v="30">+30</button></div>
+ <div class="xs" style="margin:26px 0 8px">Sincronização</div>
+ ${c?`<div class="card sm" style="margin-bottom:10px;line-height:1.5"><span class="dotst ${st}"></span>${esc(msg||'Conectado')}<br><span class="mut">${esc(c.repo)} · lombada.json · app ${VER}</span></div>
+  <button class="btn ghost wide" data-a="syncNow" style="margin-bottom:8px">Sincronizar agora</button><button class="btn danger wide" data-a="syncOff">Desconectar este aparelho</button>`
+ :`<p class="sm mut" style="margin-bottom:10px;line-height:1.5">Os dados ficam só neste aparelho até você conectar. Use o mesmo repositório privado do Rastro: o Lombada grava em arquivos próprios (lombada.json e lombada-capas.json) e não mexe nos dados do Rastro nem do Trama.</p>
+  ${S.rastroCfg?`<button class="btn wide" data-a="useRastro" style="margin-bottom:10px">Usar a conexão do Rastro</button>`:''}
+  <input type="text" id="sy_repo" placeholder="dono/repositório-privado" value="pinheirofms777-web/rastro-dados" autocomplete="off" autocapitalize="off" spellcheck="false" style="margin-bottom:8px">
+  <input type="password" id="sy_tok" placeholder="Token do GitHub (fica só neste aparelho)" autocomplete="off" style="margin-bottom:8px">
+  <button class="btn ${S.rastroCfg?'ghost ':''}wide" data-a="syncOn">Conectar</button>${S.syErr?`<p class="sm" style="color:#ff6b61;margin-top:8px">${esc(S.syErr)}</p>`:''}`}
+ <div class="xs" style="margin:26px 0 8px">Backup</div>
+ <button class="btn ghost wide" data-a="exportAll" style="margin-bottom:8px">Exportar dados (JSON)</button><button class="btn ghost wide" data-a="importAll">Importar backup</button>
+ <p class="sm mut" style="margin-top:18px;text-align:center">Lombada ${VER}</p>`;
+}
+function mQuick(){
+ return `<div class="row sp" style="margin-bottom:12px"><h2 style="font-size:21px">Registrar insight</h2><button class="ib" data-a="close" aria-label="Fechar">${ic('x')}</button></div>
+ <textarea data-i="qtext" id="qtext" placeholder="Escreva ou dite pelo teclado" style="min-height:130px;margin-bottom:12px"></textarea><button class="btn wide" data-a="saveQuick">Salvar e continuar lendo</button>`;
+}
+function mConfirm(){
+ return `<h2 style="font-size:21px;text-align:center;margin:6px 0 8px">Encerrar a sessão?</h2><p class="sm mut" style="text-align:center;margin-bottom:18px">Você ainda poderá ajustar a página e escrever uma nota.</p>
+ <button class="btn wide" data-a="endSess" style="margin-bottom:8px">Encerrar e salvar</button><button class="btn ghost wide" data-a="close" style="margin-bottom:8px">Continuar lendo</button><button class="btn danger wide" data-a="discard" style="border:0">Descartar sessão</button>`;
+}
+function paintModal(){const sh=$('.ov .sheet');if(!sh||!S.modal)return;const keep={};sh.querySelectorAll('input[id]').forEach(i=>keep[i.id]=i.value);const c={add:mAdd,rel:mRel,pages:mPages,goal:mGoal,quick:mQuick,confirmEnd:mConfirm}[S.modal];sh.innerHTML=c();for(const id in keep){const i=sh.querySelector('#'+id);if(i)i.value=keep[id]}}
+function overlay(){
+ const m=S.modal;if(!m)return'';
+ const c={add:mAdd,rel:mRel,pages:mPages,goal:mGoal,quick:mQuick,confirmEnd:mConfirm}[m];
+ return `<div class="ov ${['confirmEnd'].includes(m)?'c':''}" data-a="ovclick"><div class="sheet" role="dialog" aria-modal="true">${c()}</div></div>`;
+}
+
+/* ===== armazenamento e sincronização =====
+ Fonte da verdade: registros {chave:{v,ts}} em dois cofres (principal e capas).
+ b|id livro · n|id insight · s|id sessão · k|a|b ligação · cfg|goal meta · c|id capa (arquivo separado).
+ Ao salvar, os campos desconhecidos de um registro são mantidos (versão antiga não apaga campo novo).
+ Chaves com prefixo desconhecido nunca são apagadas por esta versão. */
+const VER='v1',KNOWN=/^(b|n|s|k|cfg)\|/,KNOWNC=/^c\|/;
+const IDB={
+ open(){return this._o||(this._o=new Promise((ok,no)=>{const r=indexedDB.open('lombada',1);r.onupgradeneeded=()=>r.result.createObjectStore('kv');r.onsuccess=()=>ok(r.result);r.onerror=()=>no(r.error)}))},
+ async get(k){const db=await this.open();return new Promise((ok,no)=>{const q=db.transaction('kv').objectStore('kv').get(k);q.onsuccess=()=>ok(q.result);q.onerror=()=>no(q.error)})},
+ async set(k,v){const db=await this.open();return new Promise((ok,no)=>{const t=db.transaction('kv','readwrite');t.objectStore('kv').put(v,k);t.oncomplete=()=>ok();t.onerror=()=>no(t.error)})},
+ async del(k){const db=await this.open();return new Promise((ok,no)=>{const t=db.transaction('kv','readwrite');t.objectStore('kv').delete(k);t.oncomplete=()=>ok();t.onerror=()=>no(t.error)})}
+};
+let ST={m:{},c:{}},CFG=null;
+const jstr=JSON.stringify,isObj=x=>x&&typeof x==='object'&&!Array.isArray(x);
+const strip=(o,drop)=>{const r={};for(const k in o)if(!drop.includes(k)&&o[k]!==undefined)r[k]=o[k];return r};
+function flatM(){const r={};
+ D.books.forEach(b=>r['b|'+b.id]=strip(b,['id','cover']));
+ D.notes.forEach(n=>r['n|'+n.id]=strip(n,['id']));
+ D.sessions.forEach(x=>r['s|'+x.id]=strip(x,['id']));
+ D.links.forEach(l=>r['k|'+l.a+'|'+l.b]=strip(l,['a','b']));
+ r['cfg|goal']=D.goal;return r}
+function flatC(){const r={};D.books.forEach(b=>{if(b.cover)r['c|'+b.id]=b.cover});return r}
+function stampOne(store,r,known){const now=Date.now();let ch=false;
+ for(const k in r){const c=store[k];let v=r[k];if(c&&isObj(c.v)&&isObj(v))v=Object.assign({},c.v,v);if(!c||jstr(c.v)!==jstr(v)){store[k]={v,ts:now};ch=true}}
+ for(const k in store)if(store[k].v!==null&&!(k in r)&&known.test(k)){store[k]={v:null,ts:now};ch=true}
+ return ch}
+function stamp(){const a=stampOne(ST.m,flatM(),KNOWN),b=stampOne(ST.c,flatC(),KNOWNC);return a||b}
+function rebuild(){const bs=[],ns=[],ss=[],ls=[];let goal=210;
+ for(const k in ST.m){const v=ST.m[k].v;if(v===null||v===undefined)continue;const i=k.indexOf('|'),p=k.slice(0,i),id=k.slice(i+1);
+  if(p==='b')bs.push(Object.assign({tags:[],syn:'',rating:0,un:'p',cur:0},v,{id,cover:null}));
+  else if(p==='n')ns.push(Object.assign({tags:[],t:'',x:'',type:'insight'},v,{id}));
+  else if(p==='s')ss.push(Object.assign({},v,{id}));
+  else if(p==='k'){const [a,b]=id.split('|');ls.push(Object.assign({rel:'relaciona'},v,{a,b}))}
+  else if(k==='cfg|goal'&&v>0)goal=v}
+ bs.forEach(b=>{const c=ST.c['c|'+b.id];if(c&&c.v)b.cover=c.v});
+ bs.sort((x,y)=>(x.cr||0)-(y.cr||0));ns.sort((x,y)=>(y.ts||0)-(x.ts||0));ss.sort((x,y)=>x.ts-y.ts);
+ D={goal,books:bs,notes:ns,links:ls,sessions:ss}}
+let svT=0;
+function save(){clearTimeout(svT);svT=setTimeout(flush,350)}
+async function flush(){clearTimeout(svT);svT=0;if(stamp()){await persist();schedSync()}}
+async function persist(){try{await IDB.set('st',ST)}catch(e){}}
+function keepSess(){try{(S.sess?IDB.set('sess',S.sess):IDB.del('sess')).catch(()=>{})}catch(e){}}
+/* sincronização com o repositório privado do GitHub (mesmo cofre do Rastro, arquivos próprios) */
+const SYN={state:'off',msg:'',busy:false,again:false,timer:0,last:0,f:{m:{file:'lombada.json',etag:null,sha:null,rts:{}},c:{file:'lombada-capas.json',etag:null,sha:null,rts:{}}}};
+const b64e=t=>{const u=new TextEncoder().encode(t);let o='';for(let i=0;i<u.length;i+=0x8000)o+=String.fromCharCode.apply(null,u.subarray(i,i+0x8000));return btoa(o)};
+const b64d=b=>new TextDecoder().decode(Uint8Array.from(atob(b.replace(/\s/g,'')),c=>c.charCodeAt(0)));
+function GH(m,path,body,extra){return fetch((CFG.api||'https://api.github.com')+path,{method:m,headers:Object.assign({Authorization:'Bearer '+CFG.tok,Accept:'application/vnd.github+json'},body?{'Content-Type':'application/json'}:{},extra||{}),body:body?jstr(body):undefined,cache:'no-store'})}
+const errTxt=s=>s===401?'Token recusado ou expirado':s===403?'Sem permissão no repositório (ou limite de uso)':s===404?'Repositório não encontrado para este token':s===409||s===422?'Conflito de versão':typeof s==='number'?'Erro '+s+' do GitHub':'Sem conexão';
+function setSyn(st,msg){SYN.state=st;SYN.msg=msg||'';if(S.modal==='goal')paintModal()}
+async function pullF(F){const path='/repos/'+CFG.repo+'/contents/'+F.file;
+ const r=await GH('GET',path,null,F.etag?{'If-None-Match':F.etag}:null);
+ if(r.status===304)return null;if(r.status===404){F.sha=null;F.etag=null;return {}}if(!r.ok)throw r.status;
+ const j=await r.json();F.sha=j.sha;let txt;
+ if(j.content&&j.encoding==='base64'&&j.content.length)txt=b64d(j.content);else{const r2=await GH('GET',path,null,{Accept:'application/vnd.github.raw+json'});if(!r2.ok)throw r2.status;txt=await r2.text()}
+ F.etag=r.headers.get('ETag');let d;try{d=JSON.parse(txt)}catch(e){throw 'Arquivo remoto ilegível'}return (d&&d.rec)||{}}
+function mergeF(store,F,rem){let ch=false;F.rts={};for(const k in rem){const b=rem[k];F.rts[k]=b.ts||0;const a=store[k];if(!a||(b.ts||0)>(a.ts||0)){store[k]={v:b.v,ts:b.ts||0};ch=true}}return ch}
+function needPush(store,F){for(const k in store)if((store[k].ts||0)>(F.rts[k]||0))return true;return false}
+async function syncFile(key){const F=SYN.f[key],store=ST[key];let changed=false;
+ for(let i=0;i<3;i++){const rem=await pullF(F);if(rem&&mergeF(store,F,rem))changed=true;
+  if(!needPush(store,F))break;
+  const body={message:'lombada '+VER,content:b64e(jstr({v:1,rec:store}))};if(F.sha)body.sha=F.sha;
+  const p=await GH('PUT','/repos/'+CFG.repo+'/contents/'+F.file,body);
+  if(p.ok){const j=await p.json();F.sha=j.content&&j.content.sha;F.etag=null;for(const k in store)F.rts[k]=store[k].ts||0;break}
+  if((p.status===409||p.status===422)&&i<2){F.etag=null;continue}throw p.status}
+ return changed}
+async function syncNow(){if(!CFG||!navigator.onLine){if(CFG)setSyn('er','Sem conexão');return}if(SYN.busy){SYN.again=true;return}SYN.busy=true;setSyn('go','Sincronizando…');
+ try{if(svT)await flush();const a=await syncFile('m'),b=await syncFile('c');
+  if(a||b){rebuild();await persist();uiRefresh()}
+  SYN.last=Date.now();setSyn('ok','Sincronizado às '+new Date().toTimeString().slice(0,5))}
+ catch(e){setSyn('er',typeof e==='string'?e:errTxt(e))}
+ finally{SYN.busy=false;if(SYN.again){SYN.again=false;schedSync()}}}
+function schedSync(){if(!CFG)return;clearTimeout(SYN.timer);SYN.timer=setTimeout(syncNow,2500)}
+function uiRefresh(){const a=document.activeElement;if(a&&/INPUT|TEXTAREA|SELECT/.test(a.tagName))return;if(G.drag||G.pan||G.pinch)return;if(S.view==='note'&&!D.notes.some(n=>n.id===S.nid)){goBack();return}if(S.view==='book'&&!D.books.some(b=>b.id===S.bid)){go('shelf');return}render()}
+function readRastroCfg(){return new Promise(ok=>{let done=false;const fin=v=>{if(!done){done=true;ok(v)}};
+ try{const r=indexedDB.open('rastro');r.onupgradeneeded=e=>{try{e.target.transaction.abort()}catch(_){}fin(null)};r.onerror=()=>fin(null);
+  r.onsuccess=()=>{const db=r.result;try{if(!db.objectStoreNames.contains('kv')){db.close();return fin(null)}const q=db.transaction('kv').objectStore('kv').get('cfg');q.onsuccess=()=>{db.close();const c=q.result;fin(c&&c.repo&&c.tok?{repo:c.repo,tok:c.tok}:null)};q.onerror=()=>{db.close();fin(null)}}catch(_){try{db.close()}catch(e){}fin(null)}}}catch(_){fin(null)}})}
+async function connect(repo,tok){repo=String(repo||'').trim().replace(/^https?:\/\/github\.com\//,'').replace(/\.git$/,'').replace(/\/$/,'');tok=String(tok||'').trim();
+ if(!/^[\w.-]+\/[\w.-]+$/.test(repo))throw 'Repositório no formato dono/nome';if(tok.length<20)throw 'Informe o token';
+ const old=CFG;CFG={repo,tok,api:window.LOMBADA_API};
+ try{const r=await GH('GET','/repos/'+repo);if(!r.ok)throw errTxt(r.status);const j=await r.json();if(!j.private)throw 'O repositório precisa ser privado';
+  await IDB.set('cfg',CFG);Object.values(SYN.f).forEach(F=>{F.etag=null;F.sha=null;F.rts={}});await syncNow()}
+ catch(e){CFG=old;throw typeof e==='string'?e:errTxt(e)}}
+/* backup */
+function exportAll(){const out={app:'lombada',ver:VER,exp:new Date().toISOString(),goal:D.goal,books:D.books,notes:D.notes,links:D.links,sessions:D.sessions};
+ const u=URL.createObjectURL(new Blob([JSON.stringify(out,null,1)],{type:'application/json'})),a=document.createElement('a');a.href=u;a.download='lombada-backup-'+dk(Date.now())+'.json';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000)}
+async function importAll(file){try{const j=JSON.parse(await file.text());if(j.app!=='lombada'||!Array.isArray(j.books))throw 0;
+ if(!confirm('Importar vai SUBSTITUIR os dados atuais ('+D.books.length+' livros, '+D.notes.length+' insights) pelos do arquivo ('+j.books.length+' livros, '+(j.notes||[]).length+' insights). Com a sincronização ligada, a troca vale para todos os aparelhos. Continuar?'))return;
+ D={goal:j.goal>0?j.goal:210,books:j.books,notes:j.notes||[],links:j.links||[],sessions:j.sessions||[]};await flush();S.modal=null;go('home');toast('Backup importado')}
+ catch(e){toast('Arquivo inválido. Use um backup exportado pelo Lombada.')}}
+
+/* ===== render ===== */
+function render(){
+ const v=S.view;
+ const views={home:vHome,shelf:vShelf,insights:vInsights,stats:vStats,book:vBook,note:vNote,graph:vGraph};
+ const full=['sessCfg','sessRun','sessEnd'].includes(v);
+ const body=full?{sessCfg:vSessCfg,sessRun:vSessRun,sessEnd:vSessEnd}[v]():`<main>${(views[v]||vHome)()}</main>`;
+ const showNav=['home','shelf','insights','stats'].includes(v);
+ const nav=showNav?`<nav aria-label="Principal"><button class="${v==='home'?'on':''}" data-a="go" data-v="home" aria-label="Início">${ic('home')}</button><button class="${v==='shelf'?'on':''}" data-a="go" data-v="shelf" aria-label="Estante">${ic('shelf')}</button><button class="go" data-a="readNow" aria-label="Ler agora">${ic('book').replace('class="ic ','class="ic " style="width:26px;height:26px" data-z="')}</button><button class="${v==='insights'?'on':''}" data-a="go" data-v="insights" aria-label="Insights">${ic('bulb')}</button><button class="${v==='stats'?'on':''}" data-a="go" data-v="stats" aria-label="Relatórios">${ic('stats')}</button></nav>`:'';
+ const act=document.activeElement,keep=act&&act.id,pos=act&&act.selectionStart;
+ const sc=$('main')?$('main').scrollTop:0,scv=S._v===v;
+ $('#app').innerHTML=body+nav+overlay()+(S.toast?`<div class="toast" role="status">${esc(S.toast)}</div>`:'');
+ const nch=v==='note'&&S._nid!==S.nid;S._nid=S.nid;
+ S._v=v;if(scv&&$('main'))$('main').scrollTop=sc;if(nch&&scv&&$('main'))$('main').classList.add('nin');
+ if(keep&&$('#'+keep)){$('#'+keep).focus();try{$('#'+keep).setSelectionRange(pos,pos)}catch(e){}}
+ if(S.sess&&v==='sessRun'&&!S.tick)S.tick=setInterval(tick,250);
+ if(v!=='sessRun'&&S.tick){clearInterval(S.tick);S.tick=null}
+ if(v==='graph')gMount();else if(G.raf){cancelAnimationFrame(G.raf);G.raf=0}
+}
+function tick(){
+ const el=$('#clock');if(!el||!S.sess)return;el.textContent=clockText();
+ if(S.sess.mode==='timer'&&!S.sess.paused&&elapsed()>=S.sess.target*MIN&&!S.sess.done){S.sess.done=true;S.modal='confirmEnd';render()}
+}
+
+/* ===== ações ===== */
+function compress(file,cb){
+ const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{const w=240,h=Math.round(w*im.height/im.width>360?360:w*im.height/im.width),c=document.createElement('canvas');
+  const sc=Math.min(240/im.width,360/im.height);c.width=Math.round(im.width*sc);c.height=Math.round(im.height*sc);c.getContext('2d').drawImage(im,0,0,c.width,c.height);
+  const d=c.toDataURL('image/jpeg',.72);cb(d,Math.round(d.length*.75/1024))};im.onerror=()=>toast('Não consegui ler essa imagem');im.src=r.result};r.readAsDataURL(file);
+}
+function newNote(bid,text){
+ const n={id:uid(),bid:bid||(D.books.find(b=>b.st==='lendo')||D.books[0]).id,type:'insight',t:'',x:text||'',tags:[],pg:0,fav:false,ts:Date.now()};
+ n.pg=book(n.bid).cur;D.notes.push(n);return n;
+}
+function link(a,b,rel){if(a!==b&&!linked(a,b))D.links.push({a,b,rel:rel||'relaciona'})}
+const A={
+ gCenter:()=>{G.v={x:0,y:0,k:1};gDraw()},
+ gRelayout:()=>{G.pos={};G.v={x:0,y:0,k:1};G.alpha=0;render()},
+ go:e=>go(e.dataset.v),back:()=>goBack(),close:()=>{S.modal=null;render()},
+ ovclick:(e,ev)=>{if(ev.target===e&&S.modal!=='confirmEnd'){S.modal=null;render()}},
+ modal:e=>{S.modal=e.dataset.m;if(S.modal==='add'){S.addf=null;LK.res=[];LK.st=''}if(S.modal==='goal'){S.syErr='';S.rastroCfg=null;if(!CFG)readRastroCfg().then(c=>{S.rastroCfg=c;if(c)paintModal()})}if(S.modal==='rel'){S.relq='';S.relt='relaciona'}render();setTimeout(()=>{const q=$('#qtext');q&&q.focus()},30)},
+ shelfMode:e=>{S.shelfMode=e.dataset.v;render()},shelfTag:e=>{S.shelfTag=e.dataset.v;render()},
+ openBook:e=>go('book',{bid:e.dataset.id,bt:'sobre'}),bt:e=>{S.bt=e.dataset.v;render()},
+ rate:e=>{const b=book(S.bid),v=+e.dataset.v;b.rating=b.rating===v?0:v;render()},
+ delBook:()=>{const b=book(S.bid);if(!confirm('Remover "'+b.t+'" da estante? Os insights, ligações e sessões deste livro também serão apagados, em todos os aparelhos.'))return;D.books=D.books.filter(x=>x.id!==b.id);D.notes=D.notes.filter(n=>n.bid!==b.id);D.sessions=D.sessions.filter(s=>s.bid!==b.id);D.links=D.links.filter(l=>note(l.a)&&note(l.b));go('shelf');toast('Livro removido')},
+ insF:e=>{S.ins.f=e.dataset.v;render()},
+ openNote:e=>{S.nEdit=false;go('note',{nid:e.dataset.id})},
+ nEdit:e=>{S.nEdit=e.dataset.v==='1';render()},
+ newNote:e=>{if(!D.books.length){toast('Adicione um livro antes do primeiro insight');return}const n=newNote(e.dataset.id);S.nEdit=true;go('note',{nid:n.id})},
+ fav:()=>{const n=note(S.nid);n.fav=!n.fav;render()},
+ delNote:()=>{if(!confirm('Excluir este insight e as ligações dele?'))return;D.notes=D.notes.filter(n=>n.id!==S.nid);D.links=D.links.filter(l=>l.a!==S.nid&&l.b!==S.nid);goBack();toast('Insight excluído')},
+ unlink:e=>{D.links=D.links.filter(l=>!((l.a===S.nid&&l.b===e.dataset.id)||(l.b===S.nid&&l.a===e.dataset.id)));render()},
+ quickLink:e=>{link(S.nid,e.dataset.id,'relaciona');render();toast('Ligados')},
+ relt:e=>{S.relt=e.dataset.v;render()},
+ doLink:e=>{link(S.nid,e.dataset.id,S.relt);S.modal=null;render();toast('Ligados')},
+ gsel:e=>{S.gSel=S.gSel===e.dataset.id?null:e.dataset.id;render()},
+ pairLink:e=>{link(e.dataset.a2,e.dataset.id,'relaciona');render();toast('Ligados')},
+ sp:e=>{S.stats.p=e.dataset.v;render()},sm:e=>{S.stats.m=Math.min(0,S.stats.m+ +e.dataset.v);render()},
+ gstep:e=>{D.goal=Math.max(30,Math.min(1680,D.goal+ +e.dataset.v));render()},
+ pstep:e=>{const b=book(S.bid);b.cur=Math.max(0,Math.min(b.pg,b.cur+ +e.dataset.v));if(b.cur>=b.pg)b.st='lido';else if(b.cur>0&&b.st==='quero')b.st='lendo';render()},
+ pick:e=>{const c=LK.res[+e.dataset.v];if(!c)return;const f=S.addf;if(f.id){if(c.cover){f.cover=c.cover;f.kb=0}if(!f.syn&&c.syn)f.syn=c.syn}else Object.assign(f,{t:c.t,a:c.a,pg:c.pg||f.pg,syn:c.syn,cover:c.cover||f.cover,kb:c.cover?0:f.kb,tags:f.tags||c.cat.join(', ')});LK.res=[];LK.st='';f.q='';render()},
+ afun:e=>{S.addf.un=e.dataset.v;render()},
+ covClear:()=>{S.addf.cover=null;S.addf.kb=0;render()},
+ editBook:()=>{const b=book(S.bid);S.addf={id:b.id,t:b.t,a:b.a,pg:b.pg,un:b.un||'p',st:b.st,tags:(b.tags||[]).join(', '),cover:b.cover,syn:b.syn||'',kb:0,q:''};LK.res=[];LK.st='';S.modal='add';render()},
+ syncNow:()=>{syncNow()},
+ syncOff:async()=>{if(!confirm('Desconectar este aparelho? Os dados continuam aqui e na nuvem.'))return;CFG=null;try{await IDB.del('cfg')}catch(e){}setSyn('off','');paintModal()},
+ syncOn:async()=>{S.syErr='';try{await connect($('#sy_repo').value,$('#sy_tok').value);toast('Sincronização ligada')}catch(e){S.syErr=String(e)}paintModal()},
+ useRastro:async()=>{S.syErr='';try{await connect(S.rastroCfg.repo,S.rastroCfg.tok);toast('Sincronização ligada')}catch(e){S.syErr=String(e)}paintModal()},
+ exportAll:()=>exportAll(),importAll:()=>$('#impf').click(),
+ saveBook:()=>{const f=S.addf,pg=Math.round(+f.pg);if(!String(f.t).trim()||!(pg>0)){toast(f.un==='l'?'Informe título e localização final':'Informe título e número de páginas');return}
+  const tags=String(f.tags).split(',').map(x=>x.trim().toLowerCase()).filter(Boolean);
+  if(f.id){const b=book(f.id);Object.assign(b,{t:f.t.trim(),a:f.a.trim()||'Autor desconhecido',pg,un:f.un==='l'?'l':'p',tags,syn:f.syn,cover:f.cover||null});b.cur=Math.min(b.cur,pg);S.addf=null;S.modal=null;render();toast('Livro atualizado');return}
+  const b=B('b'+uid(),f.t.trim(),f.a.trim()||'Autor desconhecido',pg,f.st,f.st==='lido'?pg:0,tags,f.syn,f.un);b.cover=f.cover;if(f.st!=='quero')b.ini=Date.now();if(f.st==='lido')b.fim=Date.now();D.books.push(b);S.addf=null;S.modal=null;render();toast('Livro adicionado')},
+ sessCfg:e=>{S.cfg={mode:'timer',min:30};go('sessCfg',{bid:e.dataset.id})},
+ readNow:()=>{if(S.sess){go('sessRun');return}const b=D.books.find(x=>x.st==='lendo')||D.books[0];if(!b){S.modal='add';S.addf=null;LK.res=[];LK.st='';render();toast('Adicione um livro para começar');return}S.cfg={mode:'timer',min:30};go('sessCfg',{bid:b.id})},
+ cfgMode:e=>{S.cfg.mode=e.dataset.v;render()},cfgMin:e=>{S.cfg.min=+e.dataset.v;render()},
+ startSess:()=>{S.sess={bid:S.bid,mode:S.cfg.mode,target:S.cfg.min,start:Date.now(),acc:0,paused:false,notes:[]};keepSess();S.back=[];go('sessRun')},
+ pauseSess:()=>{const s=S.sess;if(s.paused){s.start=Date.now();s.paused=false}else{s.acc+=Date.now()-s.start;s.paused=true}keepSess();render()},
+ saveQuick:()=>{const t=$('#qtext').value.trim();if(!t){S.modal=null;render();return}const n=newNote(S.sess.bid,t);n.t=t.split(/[.!?\n]/)[0].slice(0,40);S.sess.notes.push(n.id);keepSess();S.modal=null;render()},
+ discard:()=>{S.sess=null;keepSess();S.modal=null;S.back=[];go('home')},
+ endSess:()=>{const s=S.sess,b=book(s.bid),ms=elapsed(),h=new Date().getHours();
+  S.end={bid:s.bid,ms,name:h<12?'Leitura matinal':h<18?'Leitura da tarde':'Leitura da noite',to:b.cur,unit:'pg',note:'',nn:s.notes.length};S.modal=null;S.back=[];go('sessEnd')},
+ eunit:e=>{S.end.unit=e.dataset.v;render()},
+ estep:e=>{const b=book(S.end.bid),d=+e.dataset.v,en=S.end;if(en.unit==='pg')en.to=Math.max(0,Math.min(b.pg,en.to+d));else en.to=Math.max(0,Math.min(b.pg,Math.round((Math.round(en.to/b.pg*100)+d)/100*b.pg)));render()},
+ saveSess:()=>{const e=S.end,b=book(e.bid),pages=Math.max(0,e.to-b.cur);
+  D.sessions.push({id:uid(),bid:e.bid,ts:Date.now(),min:Math.max(1,Math.round(e.ms/MIN)),pages,name:e.name||'Leitura',note:e.note});
+  b.cur=Math.max(b.cur,e.to);if(!b.ini)b.ini=Date.now();if(b.cur>=b.pg){b.st='lido';b.fim=b.fim||Date.now()}else if(b.st==='quero')b.st='lendo';
+  if(e.note.trim()){const n=newNote(e.bid,e.note.trim());n.t='Nota da sessão';n.type='insight'}
+  S.sess=null;keepSess();S.end=null;S.back=[];go('home');toast('Sessão salva')}
+};
+document.addEventListener('click',ev=>{const t=ev.target.closest('[data-a]');if(!t)return;const f=A[t.dataset.a];if(f){f(t,ev);save()}});
+document.addEventListener('input',ev=>{
+ const t=ev.target,i=t.dataset.i;if(!i)return;const v=t.value;save();
+ if(i==='insq'){S.ins.q=v;$('#inslist').innerHTML=insList()}
+ else if(i==='relq'){S.relq=v;render()}
+ else if(i==='addq'){S.addf.q=v;lookup(v)}
+ else if(i.startsWith('af_')){S.addf[i.slice(3)]=v}
+ else if(i==='nt')note(S.nid).t=v;else if(i==='nx')note(S.nid).x=v;else if(i==='npg')note(S.nid).pg=+v||0;
+ else if(i==='ntags')note(S.nid).tags=v.split(',').map(s=>s.trim().toLowerCase()).filter(Boolean);
+ else if(i==='cfgrange'){S.cfg.min=+v;$('#cfgmin').textContent=v+' min'}
+ else if(i==='pcur'){const b=book(S.bid);b.cur=Math.max(0,Math.min(b.pg,+v||0))}
+ else if(i==='ptot'){const b=book(S.bid);b.pg=Math.max(1,+v||1);b.cur=Math.min(b.cur,b.pg)}
+ else if(i==='ename')S.end.name=v;else if(i==='enote')S.end.note=v;
+ else if(i==='eval'){const b=book(S.end.bid);S.end.to=Math.max(0,Math.min(b.pg,S.end.unit==='pg'?+v||0:Math.round((+v||0)/100*b.pg)));const n=Math.max(0,S.end.to-b.cur);$('#epl').textContent=eplText(b,S.end)}
+});
+document.addEventListener('change',ev=>{
+ const t=ev.target,i=t.dataset.i;if(!i)return;save();
+ if(i==='status'){const b=book(S.bid);b.st=t.value;if(b.st==='lido'){b.cur=b.pg;b.fim=b.fim||Date.now()}if(b.st!=='quero'&&!b.ini)b.ini=Date.now();render()}
+ else if(i==='ntype'){note(S.nid).type=t.value;render()}
+ else if(i==='nt'||i==='nx'||i==='ntags'){}
+ else if(i==='showAll'){S.showAll=t.checked;render()}
+ else if(i==='cover'&&t.files[0])compress(t.files[0],(d,kb)=>{S.addf.cover=d;S.addf.kb=kb;render()});
+});
+$('#impf').addEventListener('change',e=>{const f=e.target.files[0];e.target.value='';if(f)importAll(f)});
+document.addEventListener('visibilitychange',()=>{if(document.hidden){if(svT)flush();if(CFG){clearTimeout(SYN.timer);syncNow()}}else if(CFG)syncNow()});
+addEventListener('pagehide',()=>{if(svT)flush()});addEventListener('online',()=>{if(CFG)syncNow()});
+setInterval(()=>{if(CFG&&!document.hidden)syncNow()},60000);
+(async()=>{
+ try{const st=await IDB.get('st');if(st&&st.m)ST={m:st.m||{},c:st.c||{}};CFG=(await IDB.get('cfg'))||null;const ss=await IDB.get('sess');if(ss&&ss.bid)S.sess=ss}catch(e){}
+ rebuild();if(S.sess&&D.books.some(b=>b.id===S.sess.bid))S.view='sessRun';else S.sess=null;
+ render();
+ if('serviceWorker' in navigator&&location.protocol!=='file:'){const had=!!navigator.serviceWorker.controller;let rl=0;navigator.serviceWorker.addEventListener('controllerchange',()=>{if(had&&!rl&&!S.sess){rl=1;location.reload()}});navigator.serviceWorker.register('sw.js').then(r=>r.update()).catch(()=>{})}
+ try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}
+ if(CFG)syncNow();
+})();
+</script>
+</body>
+</html>
