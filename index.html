@@ -116,9 +116,11 @@ nav .go{width:58px;height:58px;border-radius:16px;margin-top:-14px;background:va
 .ov.c{align-items:center}
 .ov.c .sheet{border-radius:16px;margin:0 16px;border:1px solid var(--line)}
 .dotst{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--mut);margin-right:8px;vertical-align:1px}.dotst.ok{background:#4cc38a}.dotst.er{background:#ff6b61}.dotst.go{background:#9fb2c8}
-.toast{position:absolute;left:50%;transform:translateX(-50%);bottom:100px;background:var(--tx);color:var(--ink);padding:10px 16px;border-radius:10px;font-size:13.5px;z-index:30;white-space:nowrap}
+.dark>*{flex-shrink:0}
+@media(max-height:700px){.dark .cvw{width:84px!important;margin:4px auto 10px!important}.dark h1{font-size:19px!important}.dark .cfgm{margin:16px 0 12px!important}.dark #cfgmin{font-size:32px!important;margin-bottom:8px!important}}
+.toast{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(100px + env(safe-area-inset-bottom));background:var(--tx);color:var(--ink);padding:10px 16px;border-radius:10px;font-size:13.5px;z-index:30;white-space:nowrap}
 /* session */
-.dark{background:var(--bg0);position:absolute;inset:0;z-index:10;display:flex;flex-direction:column;padding:calc(14px + env(safe-area-inset-top)) 18px calc(22px + env(safe-area-inset-bottom));overflow-y:auto}
+.dark{background:var(--bg);position:absolute;inset:0;z-index:10;display:flex;flex-direction:column;padding:calc(14px + env(safe-area-inset-top)) 18px calc(22px + env(safe-area-inset-bottom));overflow-y:auto}
 .clock{font-family:var(--serif);font-weight:700;font-size:64px;letter-spacing:.02em;font-variant-numeric:tabular-nums;text-align:center;line-height:1}
 .round{width:88px;height:88px;border-radius:22px;background:var(--acc);color:var(--ink);display:grid;place-items:center}
 .stepper{display:flex;gap:8px;justify-content:center;align-items:center}
@@ -185,7 +187,7 @@ const nU=(b,n)=>n+' '+(n===1?U(b).one:U(b).many);
 const bpct=b=>b&&b.pg>0?Math.round(Math.min(1,b.cur/b.pg)*100):0;
 
 /* ===== estado ===== */
-const S={tab:'home',view:'home',back:[],bid:null,nid:null,shelfMode:'capas',shelfTag:'',ins:{q:'',f:'todos'},stats:{p:'semana',m:0},modal:null,sess:null,end:null,toast:'',showAll:false,gSel:null,bt:'sobre'};
+const S={tab:'home',view:'home',back:[],bid:null,nid:null,shelfMode:'capas',shelfTag:'',ins:{q:'',f:'todos'},stats:{p:'semana',m:0},modal:null,sess:null,end:null,toast:'',showAll:true,gSel:null,bt:'sobre'};
 const GHOSTB={id:'?',t:'Livro removido',a:'',pg:1,cur:0,un:'p',st:'lido',tags:[],syn:'',rating:0,cover:null};
 const book=id=>D.books.find(b=>b.id===id)||GHOSTB;
 const note=id=>D.notes.find(n=>n.id===id);
@@ -305,7 +307,8 @@ function vBook(){
  return `<div class="top"><button class="ib" data-a="back" aria-label="Voltar">${ic('back')}</button><select id="stsel" data-i="status" style="width:auto;height:36px;padding:0 12px;border-radius:18px;font-size:13px"><option value="quero" ${b.st==='quero'?'selected':''}>Quero ler</option><option value="lendo" ${b.st==='lendo'?'selected':''}>Lendo</option><option value="lido" ${b.st==='lido'?'selected':''}>Lido</option></select><div class="row" style="gap:6px"><button class="ib" data-a="editBook" aria-label="Editar livro">${ic('pen')}</button><button class="ib" data-a="delBook" aria-label="Remover livro">${ic('trash')}</button></div></div>
  <div style="display:flex;justify-content:center;margin:4px 0 16px"><div style="width:150px">${coverHTML(b)}</div></div>
  <h1 style="text-align:center;font-size:24px">${esc(b.t)}</h1><div class="sm mut" style="text-align:center;margin:4px 0 16px">${esc(b.a)} · ${nU(b,b.pg)}${b.un==='l'?' · e-book':''}</div>
- <div class="row" style="gap:10px;margin-bottom:18px"><button class="btn grow" data-a="sessCfg" data-id="${b.id}">${ic('play')}Iniciar sessão</button><button class="btn ghost" data-a="newNote" data-id="${b.id}">${ic('plus')}Insight</button></div>
+ <div class="row" style="gap:10px;margin-bottom:8px"><button class="btn grow" data-a="sessCfg" data-id="${b.id}">${ic('play')}Iniciar sessão</button><button class="btn ghost" data-a="newNote" data-id="${b.id}">${ic('plus')}Insight</button></div>
+ <button class="sm" data-a="logRead" data-id="${b.id}" style="display:block;margin:0 auto 18px;padding:6px 10px;color:var(--mut);text-decoration:underline">Li com outro timer? Registrar leitura</button>
  <div class="seg" style="margin-bottom:14px">${tabs.map(t=>`<button class="${S.bt===t?'on':''}" data-a="bt" data-v="${t}">${t[0].toUpperCase()+t.slice(1)}${t==='insights'?' '+ns.length:''}</button>`).join('')}</div>${body}`;
 }
 function filteredNotes(){
@@ -322,7 +325,7 @@ function vInsights(){
  <div style="position:relative;margin-bottom:12px"><input type="text" id="insq" data-i="insq" placeholder="Buscar insights" value="${esc(S.ins.q)}" style="padding-left:42px"><span style="position:absolute;left:13px;top:12px;color:var(--mut)">${ic('search')}</span></div>
  <div class="chips">${ch('todos','Todos',D.notes.length)}${ch('fav','Favoritos',fav)}${bs.map(b=>ch('b:'+b.id,b.t.split(' ').slice(0,2).join(' '))).join('')}${tags.map(([t,c])=>ch('t:'+t,'#'+t,c)).join('')}</div>
  <div id="inslist">${insList()}</div>
- <button class="btn" data-a="newNote" data-id="" style="position:absolute;right:18px;bottom:96px;box-shadow:0 8px 20px rgba(0,0,0,.5)">${ic('plus')}Novo insight</button>`;
+ <button class="btn" data-a="newNote" data-id="" style="position:absolute;right:18px;bottom:calc(88px + env(safe-area-inset-bottom));box-shadow:0 8px 20px rgba(0,0,0,.5)">${ic('plus')}Novo insight</button>`;
 }
 function vNote(){
  const n=note(S.nid);if(!n)return'';const b=book(n.bid),L=linksOf(n.id),sg=suggestions(n.id).slice(0,3);
@@ -368,6 +371,7 @@ function vGraph(){
 /* ===== mapa de ideias interativo ===== */
 const G={pos:{},v:{x:0,y:0,k:1},ids:[],raf:0,alpha:0,ptr:new Map(),drag:null,pan:null,pinch:null};
 function gEnsure(){
+ for(const k in G.pos){const p=G.pos[k];if(!isFinite(p.x)||!isFinite(p.y))delete G.pos[k]}if(!isFinite(G.v.x)||!isFinite(G.v.y)||!(G.v.k>0))G.v={x:0,y:0,k:1};
  const ids=G.ids,have=ids.filter(i=>G.pos[i]);
  if(!have.length){layout(ids,D.links).forEach(p=>G.pos[p.id]={x:p.x,y:p.y,vx:0,vy:0})}
  else ids.filter(i=>!G.pos[i]).forEach(i=>{G.pos[i]={x:180+(Math.random()-.5)*40,y:200+(Math.random()-.5)*40,vx:0,vy:0};G.alpha=Math.max(G.alpha,.6)});
@@ -375,10 +379,10 @@ function gEnsure(){
 function gMount(){
  cancelAnimationFrame(G.raf);G.raf=0;G.ptr.clear();G.drag=G.pan=G.pinch=null;
  const svg=$('#gsvg'),gv=$('#gv');if(!svg||!gv)return;
- gEnsure();
+ gEnsure();gFit();
  const ids=G.ids,edges=D.links.filter(l=>G.pos[l.a]&&G.pos[l.b]);G.edges=edges;
  gv.innerHTML=edges.map((l,i)=>`<line data-l="${i}" vector-effect="non-scaling-stroke" stroke="${RELC[l.rel].c}" stroke-dasharray="${RELC[l.rel].d}" stroke-linecap="round"/>`).join('')+
-  ids.map(id=>{const n=note(id),b=book(n.bid),deg=linksOf(id).length,r=6+Math.min(7,deg*1.6);G.pos[id].r=r;
+  ids.map(id=>{const n=note(id),b=book(n.bid),deg=linksOf(id).length,r=8+Math.min(7,deg*1.6);G.pos[id].r=r;
    return `<g data-n="${id}" style="cursor:pointer"><circle r="${r+10}" fill="transparent"/><circle class="dc" r="${r}" fill="${nodeFill(b)}" vector-effect="non-scaling-stroke"/><text text-anchor="middle" fill="#ececec" style="pointer-events:none;paint-order:stroke;stroke:#151618;stroke-width:3px">${esc(n.t.length>24?n.t.slice(0,23)+'…':n.t)}</text></g>`}).join('');
  gDraw();
  const pt=e=>{const r=svg.getBoundingClientRect(),k=360/r.width;return {x:(e.clientX-r.left)*k,y:(e.clientY-r.top)*k}};
@@ -409,13 +413,16 @@ function gMount(){
  svg.addEventListener('wheel',e=>{e.preventDefault();zoomAt(pt(e),G.v.k*(e.deltaY<0?1.15:1/1.15));gDraw()},{passive:false});
  if(G.alpha>.03)gLoop();
 }
+function gFit(){const P=G.ids.map(i=>G.pos[i]).filter(Boolean);if(!P.length){G.v={x:0,y:0,k:1};return}
+ let x0=Infinity,y0=Infinity,x1=-Infinity,y1=-Infinity;P.forEach(p=>{x0=Math.min(x0,p.x);y0=Math.min(y0,p.y);x1=Math.max(x1,p.x);y1=Math.max(y1,p.y)});
+ const w=Math.max(120,x1-x0+90),h=Math.max(120,y1-y0+90),k=Math.max(.5,Math.min(1.4,360/w,400/h));G.v={k,x:180-(x0+x1)/2*k,y:200-(y0+y1)/2*k}}
 function gDraw(){
  const gv=$('#gv');if(!gv)return;const v=G.v,P=G.pos,sel=S.gSel;
  gv.setAttribute('transform',`translate(${v.x} ${v.y}) scale(${v.k})`);
  gv.querySelectorAll('line').forEach(el=>{const l=G.edges[+el.dataset.l],a=P[l.a],b=P[l.b],hot=sel&&(l.a===sel||l.b===sel);
   el.setAttribute('x1',a.x);el.setAttribute('y1',a.y);el.setAttribute('x2',b.x);el.setAttribute('y2',b.y);
   el.setAttribute('stroke-width',RELC[l.rel].w+(hot?1:0));el.setAttribute('opacity',sel&&!hot?.25:.85)});
- gv.querySelectorAll('g[data-n]').forEach(el=>{const id=el.dataset.n,p=P[id],deg=linksOf(id).length,show=sel===id||(G.drag&&G.drag.id===id&&G.drag.moved)||deg>=3||v.k>1.5;
+ gv.querySelectorAll('g[data-n]').forEach(el=>{const id=el.dataset.n,p=P[id],deg=linksOf(id).length,show=sel===id||(G.drag&&G.drag.id===id&&G.drag.moved)||deg>=3||v.k>1.5||G.ids.length<=12;
   el.setAttribute('transform',`translate(${p.x} ${p.y})`);
   const c=el.querySelector('.dc');c.setAttribute('stroke',sel===id?'#fff':'#151618');c.setAttribute('stroke-width',sel===id?2.5:1.5);
   const t=el.querySelector('text');t.setAttribute('y',-(p.r+5)/1);t.setAttribute('font-size',10.5/v.k);t.setAttribute('y',-(p.r+5/v.k));t.style.display=show?'':'none';t.style.strokeWidth=(3/v.k)+'px';
@@ -466,11 +473,11 @@ function vStats(){
 function vSessCfg(){
  const b=book(S.bid),c=S.cfg||(S.cfg={mode:'timer',min:30});
  return `<div class="dark"><div class="row sp"><button class="ib" data-a="back" aria-label="Fechar">${ic('x')}</button><span></span></div>
- <div style="width:120px;margin:10px auto 14px">${coverHTML(b)}</div><h1 style="text-align:center;font-size:22px">${esc(b.t)}</h1>
+ <div class="cvw" style="width:120px;margin:10px auto 14px">${coverHTML(b)}</div><h1 style="text-align:center;font-size:22px">${esc(b.t)}</h1>
  <div class="sm mut" style="text-align:center;margin:6px 0 4px">${U(b).cap} ${b.cur} de ${b.pg} <button data-a="modal" data-m="pages" style="color:var(--acc);text-decoration:underline">editar</button></div>
- <div class="row" style="gap:10px;margin:26px 0 20px"><button class="btn grow ${c.mode==='timer'?'':'ghost'}" data-a="cfgMode" data-v="timer">Cronometrado</button><button class="btn grow ${c.mode==='free'?'':'ghost'}" data-a="cfgMode" data-v="free">Leitura livre</button></div>
+ <div class="row cfgm" style="gap:10px;margin:26px 0 20px"><button class="btn grow ${c.mode==='timer'?'':'ghost'}" data-a="cfgMode" data-v="timer">Cronometrado</button><button class="btn grow ${c.mode==='free'?'':'ghost'}" data-a="cfgMode" data-v="free">Leitura livre</button></div>
  ${c.mode==='timer'?`<div class="ser" style="font-size:38px;text-align:center;margin-bottom:14px" id="cfgmin">${c.min} min</div><input type="range" min="5" max="120" step="5" value="${c.min}" data-i="cfgrange" aria-label="Duração em minutos"><div class="row" style="gap:8px;margin-top:14px">${[15,30,45,60].map(m=>`<button class="chip grow ${c.min===m?'on':''}" style="justify-content:center" data-a="cfgMin" data-v="${m}">${m}</button>`).join('')}</div>`:`<p class="mut sm" style="text-align:center;padding:30px 20px">Sem meta de tempo. O cronômetro conta para cima até você encerrar.</p>`}
- <div style="flex:1"></div><button class="btn wide" data-a="startSess">Iniciar leitura</button></div>`;
+ <div style="flex:1 0 20px"></div><button class="btn wide" data-a="startSess">Iniciar leitura</button><button class="sm" data-a="logRead" data-id="${b.id}" style="display:block;margin:10px auto 0;padding:6px 10px;color:var(--mut);text-decoration:underline">Já li com outro timer: registrar leitura</button></div>`;
 }
 function elapsed(){const s=S.sess;return s.acc+(s.paused?0:Date.now()-s.start)}
 function clockText(){const s=S.sess,e=elapsed();return s.mode==='timer'?mmss(s.target*MIN-e):mmss(e)}
@@ -488,9 +495,12 @@ function vSessRun(){
 function eplText(b,e){const n=Math.max(0,e.to-b.cur);return nU(b,n)+(b.un==='l'?' avançada'+(n===1?'':'s'):' lida'+(n===1?'':'s'))+' nesta sessão'}
 function vSessEnd(){
  const e=S.end,b=book(e.bid);
- return `<div class="dark" style="background:var(--bg)"><div class="row sp"><button class="ib" data-a="back" aria-label="Voltar">${ic('back')}</button><h1 style="font-size:22px">Sessão terminada</h1><span style="width:40px"></span></div>
+ return `<div class="dark" style="background:var(--bg)"><div class="row sp"><button class="ib" data-a="back" aria-label="Voltar">${ic('back')}</button><h1 style="font-size:22px">${e.manual?'Registrar leitura':'Sessão terminada'}</h1><span style="width:40px"></span></div>
  <div class="row" style="gap:14px;margin:18px 0"><div style="width:64px;flex:none">${coverHTML(b)}</div><div><div class="ser" style="font-size:19px">${esc(b.t)}</div><div class="sm mut">${esc(b.a)}</div></div></div>
- <div class="card row sp" style="margin-bottom:12px"><span class="sm mut">Tempo de leitura</span><span class="ser" style="font-size:26px">${mmss(e.ms)}</span></div>
+ ${e.manual?`<div class="card" style="margin-bottom:12px"><div class="xs" style="text-align:center;margin-bottom:8px">Tempo de leitura (minutos)</div>
+ <div class="stepper">${[-10,-5].map(d=>`<button data-a="emin" data-v="${d}">${d}</button>`).join('')}<input type="number" inputmode="numeric" data-i="emin" id="emin" value="${Math.round(e.ms/MIN)}" aria-label="Minutos lidos">${[5,10].map(d=>`<button data-a="emin" data-v="${d}">+${d}</button>`).join('')}</div>
+ <div class="row" style="gap:8px;margin-top:12px"><label class="grow"><span class="xs" style="display:block;margin-bottom:6px">Dia</span><input type="date" data-i="edate" value="${e.date}" max="${dk(Date.now())}"></label><label class="grow"><span class="xs" style="display:block;margin-bottom:6px">Terminei às</span><input type="time" data-i="etime" value="${e.time}"></label></div></div>`
+ :`<div class="card row sp" style="margin-bottom:12px"><span class="sm mut">Tempo de leitura</span><span class="ser" style="font-size:26px">${mmss(e.ms)}</span></div>`}
  <label class="f"><input type="text" data-i="ename" value="${esc(e.name)}" aria-label="Nome da sessão"></label>
  <div class="seg" style="width:170px;margin:4px auto 12px"><button class="${e.unit==='pg'?'on':''}" data-a="eunit" data-v="pg">${b.un==='l'?'Local.':'Página'}</button><button class="${e.unit==='pc'?'on':''}" data-a="eunit" data-v="pc">%</button></div>
  <div class="xs" style="text-align:center;margin-bottom:8px">${e.unit==='pg'?U(b).stop:'Percentual em que parei'}</div>
@@ -498,7 +508,7 @@ function vSessEnd(){
  <div class="sm mut" style="text-align:center;margin:8px 0 14px" id="epl">${eplText(b,e)}</div>
  <textarea data-i="enote" placeholder="Como foi? Escreva o que ficou da leitura." style="min-height:90px">${esc(e.note)}</textarea>
  ${S.sess&&S.sess.notes.length||e.nn?`<p class="sm mut" style="margin-top:10px">${e.nn} insight${e.nn===1?'':'s'} registrado${e.nn===1?'':'s'} durante a sessão.</p>`:''}
- <div style="flex:1;min-height:16px"></div><button class="btn wide" data-a="saveSess" style="margin-top:16px">Salvar sessão</button></div>`;
+ <div style="flex:1;min-height:16px"></div><button class="btn wide" data-a="saveSess" style="margin-top:16px">${e.manual?'Salvar leitura':'Salvar sessão'}</button></div>`;
 }
 /* ===== modais ===== */
 /* busca online: Google Books, e Open Library se falhar. Só leitura pública, sem chave. */
@@ -581,7 +591,7 @@ function overlay(){
  b|id livro · n|id insight · s|id sessão · k|a|b ligação · cfg|goal meta · c|id capa (arquivo separado).
  Ao salvar, os campos desconhecidos de um registro são mantidos (versão antiga não apaga campo novo).
  Chaves com prefixo desconhecido nunca são apagadas por esta versão. */
-const VER='v2',KNOWN=/^(b|n|s|k|cfg)\|/,KNOWNC=/^c\|/;
+const VER='v3',KNOWN=/^(b|n|s|k|cfg)\|/,KNOWNC=/^c\|/;
 const IDB={
  open(){return this._o||(this._o=new Promise((ok,no)=>{const r=indexedDB.open('lombada',1);r.onupgradeneeded=()=>r.result.createObjectStore('kv');r.onsuccess=()=>ok(r.result);r.onerror=()=>no(r.error)}))},
  async get(k){const db=await this.open();return new Promise((ok,no)=>{const q=db.transaction('kv').objectStore('kv').get(k);q.onsuccess=()=>ok(q.result);q.onerror=()=>no(q.error)})},
@@ -701,7 +711,7 @@ function newNote(bid,text){
 }
 function link(a,b,rel){if(a!==b&&!linked(a,b))D.links.push({a,b,rel:rel||'relaciona'})}
 const A={
- gCenter:()=>{G.v={x:0,y:0,k:1};gDraw()},
+ gCenter:()=>{gFit();gDraw()},
  gRelayout:()=>{G.pos={};G.v={x:0,y:0,k:1};G.alpha=0;render()},
  go:e=>go(e.dataset.v),back:()=>goBack(),close:()=>{S.modal=null;render()},
  ovclick:(e,ev)=>{if(ev.target===e&&S.modal!=='confirmEnd'){S.modal=null;render()}},
@@ -748,12 +758,16 @@ const A={
  endSess:()=>{const s=S.sess,b=book(s.bid),ms=elapsed(),h=new Date().getHours();
   S.end={bid:s.bid,ms,name:h<12?'Leitura matinal':h<18?'Leitura da tarde':'Leitura da noite',to:b.cur,unit:'pg',note:'',nn:s.notes.length};S.modal=null;S.back=[];go('sessEnd')},
  eunit:e=>{S.end.unit=e.dataset.v;render()},
+ logRead:e=>{const id=e.dataset.id||S.bid;if(!id||!D.books.some(x=>x.id===id))return;const b=book(id),d=new Date(),h=d.getHours();
+  S.end={bid:id,ms:30*MIN,manual:true,date:dk(d),time:String(h).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'),name:h<12?'Leitura matinal':h<18?'Leitura da tarde':'Leitura da noite',to:b.cur,unit:'pg',note:'',nn:0};go('sessEnd')},
+ emin:e=>{const m=Math.max(1,Math.min(600,Math.round(S.end.ms/MIN)+(+e.dataset.v)));S.end.ms=m*MIN;const i=$('#emin');if(i)i.value=m},
  estep:e=>{const b=book(S.end.bid),d=+e.dataset.v,en=S.end;if(en.unit==='pg')en.to=Math.max(0,Math.min(b.pg,en.to+d));else en.to=Math.max(0,Math.min(b.pg,Math.round((Math.round(en.to/b.pg*100)+d)/100*b.pg)));render()},
- saveSess:()=>{const e=S.end,b=book(e.bid),pages=Math.max(0,e.to-b.cur);
-  D.sessions.push({id:uid(),bid:e.bid,ts:Date.now(),min:Math.max(1,Math.round(e.ms/MIN)),pages,name:e.name||'Leitura',note:e.note});
-  b.cur=Math.max(b.cur,e.to);if(!b.ini)b.ini=Date.now();if(b.cur>=b.pg){b.st='lido';b.fim=b.fim||Date.now()}else if(b.st==='quero')b.st='lendo';
+ saveSess:()=>{const e=S.end,b=book(e.bid),pages=Math.max(0,e.to-b.cur);let ts=Date.now();
+  if(e.manual){const m=Math.round(e.ms/MIN);if(!(m>=1)){toast('Informe os minutos lidos');return}const [y,mo,d]=String(e.date||dk(ts)).split('-').map(Number),[hh,mm]=String(e.time||'12:00').split(':').map(Number);const t=new Date(y,mo-1,d,hh||0,mm||0).getTime();if(!isFinite(t)){toast('Confira o dia e a hora');return}ts=Math.min(Date.now(),t)}
+  D.sessions.push(Object.assign({id:uid(),bid:e.bid,ts,min:Math.max(1,Math.round(e.ms/MIN)),pages,name:e.name||'Leitura',note:e.note},e.manual?{man:1}:{}));
+  b.cur=Math.max(b.cur,e.to);if(!b.ini)b.ini=ts;if(b.cur>=b.pg){b.st='lido';b.fim=b.fim||ts}else if(b.st==='quero')b.st='lendo';
   if(e.note.trim()){const n=newNote(e.bid,e.note.trim());n.t='Nota da sessão';n.type='insight'}
-  S.sess=null;keepSess();S.end=null;S.back=[];go('home');toast('Sessão salva')}
+  if(!e.manual){S.sess=null;keepSess()}const man=e.manual;S.end=null;S.back=[];go('home');toast(man?'Leitura registrada':'Sessão salva')}
 };
 document.addEventListener('click',ev=>{const t=ev.target.closest('[data-a]');if(!t)return;const f=A[t.dataset.a];if(f){f(t,ev);save()}});
 document.addEventListener('input',ev=>{
@@ -767,7 +781,7 @@ document.addEventListener('input',ev=>{
  else if(i==='cfgrange'){S.cfg.min=+v;$('#cfgmin').textContent=v+' min'}
  else if(i==='pcur'){const b=book(S.bid);b.cur=Math.max(0,Math.min(b.pg,+v||0))}
  else if(i==='ptot'){const b=book(S.bid);b.pg=Math.max(1,+v||1);b.cur=Math.min(b.cur,b.pg)}
- else if(i==='ename')S.end.name=v;else if(i==='enote')S.end.note=v;
+ else if(i==='ename')S.end.name=v;else if(i==='enote')S.end.note=v;else if(i==='emin'){S.end.ms=Math.max(0,Math.min(600,Math.round(+v||0)))*MIN}else if(i==='edate')S.end.date=v;else if(i==='etime')S.end.time=v;
  else if(i==='eval'){const b=book(S.end.bid);S.end.to=Math.max(0,Math.min(b.pg,S.end.unit==='pg'?+v||0:Math.round((+v||0)/100*b.pg)));const n=Math.max(0,S.end.to-b.cur);$('#epl').textContent=eplText(b,S.end)}
 });
 document.addEventListener('change',ev=>{
