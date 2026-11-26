@@ -130,6 +130,7 @@ nav .go{width:58px;height:58px;border-radius:16px;margin-top:-14px;background:va
 .stepper{display:flex;gap:8px;justify-content:center;align-items:center}
 .stepper button{height:44px;min-width:44px;padding:0 12px;border-radius:10px;background:var(--surf2)}
 .stepper input{width:90px;text-align:center;height:44px;border-radius:10px;font-size:18px}
+.gin{display:flex;align-items:center;gap:4px}.gin input{width:54px;padding:0 4px}.gin span{color:var(--mut);font-size:14px;margin-right:2px}
 input[type=range]{width:100%;accent-color:var(--acc)}
 .star{color:var(--line)}.star.on{color:var(--acc)}.star svg{fill:currentColor}
 svg text{font-family:var(--sans)}
@@ -566,7 +567,7 @@ function mPages(){
 function mGoal(){
  const c=CFG,st=SYN.state,msg=SYN.msg;
  return `<div class="row sp" style="margin-bottom:16px"><h2 style="font-size:21px">Ajustes</h2><button class="ib" data-a="close" aria-label="Fechar">${ic('x')}</button></div>
- <div class="xs" style="text-align:center;margin-bottom:8px">Meta semanal de leitura</div><div class="stepper"><button data-a="gstep" data-v="-30">-30</button><div class="ser" style="font-size:26px;min-width:110px;text-align:center">${fmtMin(D.goal)}</div><button data-a="gstep" data-v="30">+30</button></div>
+ <div class="xs" style="text-align:center;margin-bottom:8px">Meta semanal de leitura</div><div class="stepper"><button data-a="gstep" data-v="-30">-30</button><div class="gin"><input type="number" inputmode="numeric" data-i="gh" id="gh" value="${Math.floor(D.goal/60)}" aria-label="Horas da meta" enterkeyhint="done" onfocus="this.select()"><span>h</span><input type="number" inputmode="numeric" data-i="gm" id="gm" value="${D.goal%60}" aria-label="Minutos da meta" enterkeyhint="done" onfocus="this.select()"><span>min</span></div><button data-a="gstep" data-v="30">+30</button></div><p class="sm mut" style="text-align:center;margin-top:8px">Toque nos números para digitar.</p>
  <div class="xs" style="margin:26px 0 8px">Sincronização</div>
  ${c?`<div class="card sm" style="margin-bottom:10px;line-height:1.5"><span class="dotst ${st}"></span>${esc(msg||'Conectado')}<br><span class="mut">${esc(c.repo)} · lombada.json · app ${VER}</span></div>
   <button class="btn ghost wide" data-a="syncNow" style="margin-bottom:8px">Sincronizar agora</button><button class="btn danger wide" data-a="syncOff">Desconectar este aparelho</button>`
@@ -599,7 +600,7 @@ function overlay(){
  b|id livro · n|id insight · s|id sessão · k|a|b ligação · cfg|goal meta · c|id capa (arquivo separado).
  Ao salvar, os campos desconhecidos de um registro são mantidos (versão antiga não apaga campo novo).
  Chaves com prefixo desconhecido nunca são apagadas por esta versão. */
-const VER='v5',KNOWN=/^(b|n|s|k|cfg)\|/,KNOWNC=/^c\|/;
+const VER='v6',KNOWN=/^(b|n|s|k|cfg)\|/,KNOWNC=/^c\|/;
 const IDB={
  open(){return this._o||(this._o=new Promise((ok,no)=>{const r=indexedDB.open('lombada',1);r.onupgradeneeded=()=>r.result.createObjectStore('kv');r.onsuccess=()=>ok(r.result);r.onerror=()=>no(r.error)}))},
  async get(k){const db=await this.open();return new Promise((ok,no)=>{const q=db.transaction('kv').objectStore('kv').get(k);q.onsuccess=()=>ok(q.result);q.onerror=()=>no(q.error)})},
@@ -685,6 +686,8 @@ async function importAll(file){try{const j=JSON.parse(await file.text());if(j.ap
  catch(e){toast('Arquivo inválido. Use um backup exportado pelo Lombada.')}}
 
 /* ===== render ===== */
+function gPaint(){const h=$('#gh'),m=$('#gm');if(h)h.value=Math.floor(D.goal/60);if(m)m.value=D.goal%60}
+function gRead(){const h=$('#gh'),m=$('#gm');return Math.max(30,Math.min(1680,Math.round(+(h&&h.value)||0)*60+Math.round(+(m&&m.value)||0)))}
 function render(){
  const v=S.view;
  const views={home:vHome,shelf:vShelf,insights:vInsights,stats:vStats,book:vBook,note:vNote,graph:vGraph};
@@ -741,7 +744,7 @@ const A={
  gsel:e=>{S.gSel=S.gSel===e.dataset.id?null:e.dataset.id;render()},
  pairLink:e=>{link(e.dataset.a2,e.dataset.id,'relaciona');render();toast('Ligados')},
  sp:e=>{S.stats.p=e.dataset.v;render()},sm:e=>{S.stats.m=Math.min(0,S.stats.m+ +e.dataset.v);render()},
- gstep:e=>{D.goal=Math.max(30,Math.min(1680,D.goal+ +e.dataset.v));render()},
+ gstep:e=>{D.goal=Math.max(30,Math.min(1680,D.goal+ +e.dataset.v));save();gPaint()},
  pstep:e=>{const b=book(S.bid);b.cur=Math.max(0,Math.min(b.pg,b.cur+ +e.dataset.v));if(b.cur>=b.pg)b.st='lido';else if(b.cur>0&&b.st==='quero')b.st='lendo';render()},
  pick:e=>{const c=LK.res[+e.dataset.v];if(!c)return;const f=S.addf;if(f.id){if(c.cover){f.cover=c.cover;f.kb=0}if(!f.syn&&c.syn)f.syn=c.syn}else Object.assign(f,{t:c.t,a:c.a,pg:c.pg||f.pg,syn:c.syn,cover:c.cover||f.cover,kb:c.cover?0:f.kb,tags:f.tags||c.cat.join(', ')});LK.res=[];LK.st='';f.q='';render()},
  afun:e=>{S.addf.un=e.dataset.v;render()},
@@ -797,6 +800,7 @@ document.addEventListener('input',ev=>{
  else if(i==='pcur'){const b=book(S.bid);b.cur=Math.max(0,Math.min(b.pg,+v||0))}
  else if(i==='ptot'){const b=book(S.bid);b.pg=Math.max(1,+v||1);b.cur=Math.min(b.cur,b.pg)}
  else if(i==='ename')S.end.name=v;else if(i==='enote')S.end.note=v;else if(i==='emin'){S.end.ms=Math.max(0,Math.min(600,Math.round(+v||0)))*MIN}else if(i==='edate')S.end.date=v;else if(i==='epages')S.end.pages=Math.max(0,Math.round(+v||0));else if(i==='etime')S.end.time=v;
+ else if(i==='gh'||i==='gm')D.goal=gRead();
  else if(i==='eval'){const b=book(S.end.bid);S.end.to=Math.max(0,Math.min(b.pg,S.end.unit==='pg'?+v||0:Math.round((+v||0)/100*b.pg)));const n=Math.max(0,S.end.to-b.cur);$('#epl').textContent=eplText(b,S.end)}
 });
 document.addEventListener('change',ev=>{
@@ -804,6 +808,7 @@ document.addEventListener('change',ev=>{
  if(i==='status'){const b=book(S.bid);b.st=t.value;if(b.st==='lido'){b.cur=b.pg;b.fim=b.fim||Date.now()}if(b.st!=='quero'&&!b.ini)b.ini=Date.now();render()}
  else if(i==='ntype'){note(S.nid).type=t.value;render()}
  else if(i==='nt'||i==='nx'||i==='ntags'){}
+ else if(i==='gh'||i==='gm'){D.goal=gRead();gPaint()}
  else if(i==='showAll'){S.showAll=t.checked;render()}
  else if(i==='cover'&&t.files[0])compress(t.files[0],(d,kb)=>{S.addf.cover=d;S.addf.kb=kb;render()});
 });

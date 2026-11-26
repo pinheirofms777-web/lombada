@@ -1,4 +1,4 @@
-const C='lombada-v5';
+const C='lombada-v6';
 const SHELL=['./','./index.html','./manifest.webmanifest','./icon-180.png','./icon-192.png','./icon-512.png'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(C).then(c=>c.addAll(SHELL.map(u=>new Request(u,{cache:'reload'})))).then(()=>self.skipWaiting()))});
 /* apaga só caches antigos do próprio Lombada: o domínio é compartilhado com o Rastro e o Trama */
