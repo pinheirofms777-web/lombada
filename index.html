@@ -303,7 +303,7 @@ function vBook(){
   <div class="row" style="gap:12px"><div class="card grow"><div class="xs">${b.un==='l'?'Localizações':'Páginas'}</div><div class="big" style="font-size:30px;margin-top:6px">${b.pg}</div></div>
   <div class="card grow"><div class="xs">Sua nota</div><div class="row" style="margin-top:8px">${[1,2,3,4,5].map(i=>`<button class="star ${b.rating>=i?'on':''}" data-a="rate" data-v="${i}" aria-label="${i} estrelas">${ic('star')}</button>`).join('')}</div></div></div>`;
  else if(S.bt==='insights')body=ns.length?`<div class="cols">${ns.map(n=>noteCard(n)).join('')}</div>`:`<p class="mut sm" style="padding:20px 0">Nenhum insight deste livro ainda.</p>`;
- else body=ss.length?ss.slice(0,12).map(s=>`<div class="card row sp" style="margin-bottom:8px"><div><div style="font-weight:500">${esc(s.name)}</div><div class="sm mut">${dfmt(s.ts)}</div></div><div style="text-align:right"><div class="ser" style="font-size:18px">${fmtMin(s.min)}</div><div class="sm mut">${nU(b,s.pages)}</div></div></div>`).join(''):`<p class="mut sm" style="padding:20px 0">Nenhuma sessão registrada.</p>`;
+ else body=ss.length?'<p class="sm mut" style="margin-bottom:10px">Toque num registro para editar ou excluir.</p>'+ss.map(s=>`<button class="card row sp" data-a="editSess" data-id="${s.id}" style="margin-bottom:8px;width:100%;text-align:left"><div><div style="font-weight:500">${esc(s.name)}</div><div class="sm mut">${dfmt(s.ts)} · ${hhmm(s.ts)}${s.man?' · timer externo':''}</div></div><div style="text-align:right"><div class="ser" style="font-size:18px">${fmtMin(s.min)}</div><div class="sm mut">${nU(b,s.pages)}</div></div></button>`).join(''):`<p class="mut sm" style="padding:20px 0">Nenhuma sessão registrada.</p>`;
  return `<div class="top"><button class="ib" data-a="back" aria-label="Voltar">${ic('back')}</button><select id="stsel" data-i="status" style="width:auto;height:36px;padding:0 12px;border-radius:18px;font-size:13px"><option value="quero" ${b.st==='quero'?'selected':''}>Quero ler</option><option value="lendo" ${b.st==='lendo'?'selected':''}>Lendo</option><option value="lido" ${b.st==='lido'?'selected':''}>Lido</option></select><div class="row" style="gap:6px"><button class="ib" data-a="editBook" aria-label="Editar livro">${ic('pen')}</button><button class="ib" data-a="delBook" aria-label="Remover livro">${ic('trash')}</button></div></div>
  <div style="display:flex;justify-content:center;margin:4px 0 16px"><div style="width:150px">${coverHTML(b)}</div></div>
  <h1 style="text-align:center;font-size:24px">${esc(b.t)}</h1><div class="sm mut" style="text-align:center;margin:4px 0 16px">${esc(b.a)} · ${nU(b,b.pg)}${b.un==='l'?' · e-book':''}</div>
@@ -492,23 +492,26 @@ function vSessRun(){
  <div class="row" style="gap:10px"><button class="btn ghost" data-a="pauseSess" style="width:96px" aria-label="${s.paused?'Retomar':'Pausar'}">${ic(s.paused?'play':'pause')}</button><button class="btn grow" data-a="modal" data-m="confirmEnd">Encerrar sessão</button></div>
  </div>`;
 }
-function eplText(b,e){const n=Math.max(0,e.to-b.cur);return nU(b,n)+(b.un==='l'?' avançada'+(n===1?'':'s'):' lida'+(n===1?'':'s'))+' nesta sessão'}
+const hhmm=t=>{const d=new Date(t);return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')};
+function eplText(b,e){const n=Math.max(0,e.to-(e.edit?e.start:b.cur));return nU(b,n)+(b.un==='l'?' avançada'+(n===1?'':'s'):' lida'+(n===1?'':'s'))+' nesta sessão'}
 function vSessEnd(){
  const e=S.end,b=book(e.bid);
- return `<div class="dark" style="background:var(--bg)"><div class="row sp"><button class="ib" data-a="back" aria-label="Voltar">${ic('back')}</button><h1 style="font-size:22px">${e.manual?'Registrar leitura':'Sessão terminada'}</h1><span style="width:40px"></span></div>
+ return `<div class="dark" style="background:var(--bg)"><div class="row sp"><button class="ib" data-a="back" aria-label="Voltar">${ic('back')}</button><h1 style="font-size:22px">${e.edit?'Editar registro':e.manual?'Registrar leitura':'Sessão terminada'}</h1><span style="width:40px"></span></div>
  <div class="row" style="gap:14px;margin:18px 0"><div style="width:64px;flex:none">${coverHTML(b)}</div><div><div class="ser" style="font-size:19px">${esc(b.t)}</div><div class="sm mut">${esc(b.a)}</div></div></div>
- ${e.manual?`<div class="card" style="margin-bottom:12px"><div class="xs" style="text-align:center;margin-bottom:8px">Tempo de leitura (minutos)</div>
+ ${e.manual||e.edit?`<div class="card" style="margin-bottom:12px"><div class="xs" style="text-align:center;margin-bottom:8px">Tempo de leitura (minutos)</div>
  <div class="stepper">${[-10,-5].map(d=>`<button data-a="emin" data-v="${d}">${d}</button>`).join('')}<input type="number" inputmode="numeric" data-i="emin" id="emin" value="${Math.round(e.ms/MIN)}" aria-label="Minutos lidos">${[5,10].map(d=>`<button data-a="emin" data-v="${d}">+${d}</button>`).join('')}</div>
  <div class="row" style="gap:8px;margin-top:12px"><label class="grow"><span class="xs" style="display:block;margin-bottom:6px">Dia</span><input type="date" data-i="edate" value="${e.date}" max="${dk(Date.now())}"></label><label class="grow"><span class="xs" style="display:block;margin-bottom:6px">Terminei às</span><input type="time" data-i="etime" value="${e.time}"></label></div></div>`
  :`<div class="card row sp" style="margin-bottom:12px"><span class="sm mut">Tempo de leitura</span><span class="ser" style="font-size:26px">${mmss(e.ms)}</span></div>`}
  <label class="f"><input type="text" data-i="ename" value="${esc(e.name)}" aria-label="Nome da sessão"></label>
- <div class="seg" style="width:170px;margin:4px auto 12px"><button class="${e.unit==='pg'?'on':''}" data-a="eunit" data-v="pg">${b.un==='l'?'Local.':'Página'}</button><button class="${e.unit==='pc'?'on':''}" data-a="eunit" data-v="pc">%</button></div>
+${e.edit&&!e.last?`<div class="xs" style="text-align:center;margin-bottom:8px">${b.un==='l'?'Localizações avançadas':'Páginas lidas'} nesta sessão</div>
+ <div class="stepper">${[-10,-1].map(d=>`<button data-a="epstep" data-v="${d}">${d}</button>`).join('')}<input type="number" inputmode="numeric" data-i="epages" id="epages" value="${e.pages}" aria-label="Quantidade lida">${[1,10].map(d=>`<button data-a="epstep" data-v="${d}">+${d}</button>`).join('')}</div>
+ <p class="sm mut" style="text-align:center;margin:8px 0 14px">Este não é o registro mais recente do livro, então a ${U(b).one} atual não muda.</p>`:` <div class="seg" style="width:170px;margin:4px auto 12px"><button class="${e.unit==='pg'?'on':''}" data-a="eunit" data-v="pg">${b.un==='l'?'Local.':'Página'}</button><button class="${e.unit==='pc'?'on':''}" data-a="eunit" data-v="pc">%</button></div>
  <div class="xs" style="text-align:center;margin-bottom:8px">${e.unit==='pg'?U(b).stop:'Percentual em que parei'}</div>
  <div class="stepper">${[-10,-1].map(d=>`<button data-a="estep" data-v="${d}">${d}</button>`).join('')}<input type="number" inputmode="numeric" data-i="eval" value="${e.unit==='pg'?e.to:Math.round(e.to/b.pg*100)}" aria-label="Valor">${[1,10].map(d=>`<button data-a="estep" data-v="${d}">+${d}</button>`).join('')}</div>
  <div class="sm mut" style="text-align:center;margin:8px 0 14px" id="epl">${eplText(b,e)}</div>
- <textarea data-i="enote" placeholder="Como foi? Escreva o que ficou da leitura." style="min-height:90px">${esc(e.note)}</textarea>
- ${S.sess&&S.sess.notes.length||e.nn?`<p class="sm mut" style="margin-top:10px">${e.nn} insight${e.nn===1?'':'s'} registrado${e.nn===1?'':'s'} durante a sessão.</p>`:''}
- <div style="flex:1;min-height:16px"></div><button class="btn wide" data-a="saveSess" style="margin-top:16px">${e.manual?'Salvar leitura':'Salvar sessão'}</button></div>`;
+`} <textarea data-i="enote" placeholder="Como foi? Escreva o que ficou da leitura." style="min-height:90px">${esc(e.note)}</textarea>
+ ${!e.edit&&(S.sess&&S.sess.notes.length||e.nn)?`<p class="sm mut" style="margin-top:10px">${e.nn} insight${e.nn===1?'':'s'} registrado${e.nn===1?'':'s'} durante a sessão.</p>`:''}
+ <div style="flex:1;min-height:16px"></div><button class="btn wide" data-a="saveSess" style="margin-top:16px">${e.edit?'Salvar alterações':e.manual?'Salvar leitura':'Salvar sessão'}</button>${e.edit?'<button class="btn danger wide" data-a="delSess" style="margin-top:8px">Excluir registro</button>':''}</div>`;
 }
 /* ===== modais ===== */
 /* busca online: Google Books, e Open Library se falhar. Só leitura pública, sem chave. */
@@ -591,7 +594,7 @@ function overlay(){
  b|id livro · n|id insight · s|id sessão · k|a|b ligação · cfg|goal meta · c|id capa (arquivo separado).
  Ao salvar, os campos desconhecidos de um registro são mantidos (versão antiga não apaga campo novo).
  Chaves com prefixo desconhecido nunca são apagadas por esta versão. */
-const VER='v3',KNOWN=/^(b|n|s|k|cfg)\|/,KNOWNC=/^c\|/;
+const VER='v4',KNOWN=/^(b|n|s|k|cfg)\|/,KNOWNC=/^c\|/;
 const IDB={
  open(){return this._o||(this._o=new Promise((ok,no)=>{const r=indexedDB.open('lombada',1);r.onupgradeneeded=()=>r.result.createObjectStore('kv');r.onsuccess=()=>ok(r.result);r.onerror=()=>no(r.error)}))},
  async get(k){const db=await this.open();return new Promise((ok,no)=>{const q=db.transaction('kv').objectStore('kv').get(k);q.onsuccess=()=>ok(q.result);q.onerror=()=>no(q.error)})},
@@ -760,10 +763,17 @@ const A={
  eunit:e=>{S.end.unit=e.dataset.v;render()},
  logRead:e=>{const id=e.dataset.id||S.bid;if(!id||!D.books.some(x=>x.id===id))return;const b=book(id),d=new Date(),h=d.getHours();
   S.end={bid:id,ms:30*MIN,manual:true,date:dk(d),time:String(h).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'),name:h<12?'Leitura matinal':h<18?'Leitura da tarde':'Leitura da noite',to:b.cur,unit:'pg',note:'',nn:0};go('sessEnd')},
+ editSess:e=>{const x=D.sessions.find(y=>y.id===e.dataset.id);if(!x)return;const b=book(x.bid),last=D.sessions.filter(y=>y.bid===x.bid).reduce((m,y)=>!m||y.ts>m.ts?y:m,null).id===x.id;
+  S.end={edit:x.id,bid:x.bid,ms:Math.max(1,x.min)*MIN,date:dk(x.ts),time:hhmm(x.ts),name:x.name||'',note:x.note||'',unit:'pg',nn:0,last,pages:x.pages||0,start:Math.max(0,b.cur-(x.pages||0)),to:b.cur};go('sessEnd')},
+ epstep:e=>{const en=S.end;en.pages=Math.max(0,en.pages+(+e.dataset.v));const i=$('#epages');if(i)i.value=en.pages},
+ delSess:()=>{const id=S.end&&S.end.edit;if(!id||!confirm('Excluir este registro de leitura? A página atual do livro não muda.'))return;D.sessions=D.sessions.filter(y=>y.id!==id);S.end=null;goBack();toast('Registro excluído')},
  emin:e=>{const m=Math.max(1,Math.min(600,Math.round(S.end.ms/MIN)+(+e.dataset.v)));S.end.ms=m*MIN;const i=$('#emin');if(i)i.value=m},
  estep:e=>{const b=book(S.end.bid),d=+e.dataset.v,en=S.end;if(en.unit==='pg')en.to=Math.max(0,Math.min(b.pg,en.to+d));else en.to=Math.max(0,Math.min(b.pg,Math.round((Math.round(en.to/b.pg*100)+d)/100*b.pg)));render()},
  saveSess:()=>{const e=S.end,b=book(e.bid),pages=Math.max(0,e.to-b.cur);let ts=Date.now();
-  if(e.manual){const m=Math.round(e.ms/MIN);if(!(m>=1)){toast('Informe os minutos lidos');return}const [y,mo,d]=String(e.date||dk(ts)).split('-').map(Number),[hh,mm]=String(e.time||'12:00').split(':').map(Number);const t=new Date(y,mo-1,d,hh||0,mm||0).getTime();if(!isFinite(t)){toast('Confira o dia e a hora');return}ts=Math.min(Date.now(),t)}
+  if(e.manual||e.edit){const m=Math.round(e.ms/MIN);if(!(m>=1)){toast('Informe os minutos lidos');return}const [y,mo,d]=String(e.date||dk(ts)).split('-').map(Number),[hh,mm]=String(e.time||'12:00').split(':').map(Number);const t=new Date(y,mo-1,d,hh||0,mm||0).getTime();if(!isFinite(t)){toast('Confira o dia e a hora');return}ts=Math.min(Date.now(),t)}
+  if(e.edit){const x=D.sessions.find(y=>y.id===e.edit);if(!x){S.end=null;goBack();return}x.min=Math.max(1,Math.round(e.ms/MIN));x.ts=ts;x.name=e.name||'Leitura';x.note=e.note;
+   if(e.last){x.pages=Math.max(0,e.to-e.start);b.cur=Math.max(0,Math.min(b.pg,e.to));if(b.cur>=b.pg){b.st='lido';b.fim=b.fim||ts}else if(b.st==='lido'){b.st='lendo';delete b.fim}}else x.pages=Math.max(0,Math.round(e.pages)||0);
+   S.end=null;goBack();toast('Registro atualizado');return}
   D.sessions.push(Object.assign({id:uid(),bid:e.bid,ts,min:Math.max(1,Math.round(e.ms/MIN)),pages,name:e.name||'Leitura',note:e.note},e.manual?{man:1}:{}));
   b.cur=Math.max(b.cur,e.to);if(!b.ini)b.ini=ts;if(b.cur>=b.pg){b.st='lido';b.fim=b.fim||ts}else if(b.st==='quero')b.st='lendo';
   if(e.note.trim()){const n=newNote(e.bid,e.note.trim());n.t='Nota da sessão';n.type='insight'}
@@ -781,7 +791,7 @@ document.addEventListener('input',ev=>{
  else if(i==='cfgrange'){S.cfg.min=+v;$('#cfgmin').textContent=v+' min'}
  else if(i==='pcur'){const b=book(S.bid);b.cur=Math.max(0,Math.min(b.pg,+v||0))}
  else if(i==='ptot'){const b=book(S.bid);b.pg=Math.max(1,+v||1);b.cur=Math.min(b.cur,b.pg)}
- else if(i==='ename')S.end.name=v;else if(i==='enote')S.end.note=v;else if(i==='emin'){S.end.ms=Math.max(0,Math.min(600,Math.round(+v||0)))*MIN}else if(i==='edate')S.end.date=v;else if(i==='etime')S.end.time=v;
+ else if(i==='ename')S.end.name=v;else if(i==='enote')S.end.note=v;else if(i==='emin'){S.end.ms=Math.max(0,Math.min(600,Math.round(+v||0)))*MIN}else if(i==='edate')S.end.date=v;else if(i==='epages')S.end.pages=Math.max(0,Math.round(+v||0));else if(i==='etime')S.end.time=v;
  else if(i==='eval'){const b=book(S.end.bid);S.end.to=Math.max(0,Math.min(b.pg,S.end.unit==='pg'?+v||0:Math.round((+v||0)/100*b.pg)));const n=Math.max(0,S.end.to-b.cur);$('#epl').textContent=eplText(b,S.end)}
 });
 document.addEventListener('change',ev=>{
